@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dungeon Economy — Issue #1 — April 5, 2026</title>
+<style>
+:root {
+  --bg: #0f0f0f;
+  --bg2: #161616;
+  --bg3: #1e1e1e;
+  --bg4: #252525;
+  --border: #2a2a2a;
+  --border2: #333;
+  --text: #e8e6e1;
+  --text2: #a09e99;
+  --text3: #6b6966;
+  --accent: #c8a96e;
+  --accent2: #8b6f3e;
+  --red: #c0392b;
+  --green: #27ae60;
+  --blue: #2980b9;
+  --purple: #8e44ad;
+  --confirmed: #1a3a2a;
+  --confirmed-text: #4ade80;
+  --interpretive: #1a2a3a;
+  --interpretive-text: #60a5fa;
+  --speculative: #2a1a2a;
+  --speculative-text: #c084fc;
+  --signal: #2a1a00;
+  --signal-text: #fb923c;
+}
+.light {
+  --bg: #f5f0e8;
+  --bg2: #ede8de;
+  --bg3: #e4ddd0;
+  --bg4: #d8d0c0;
+  --border: #c8bfac;
+  --border2: #b8ae9a;
+  --text: #1a1714;
+  --text2: #5a5450;
+  --text3: #8a8480;
+  --accent: #8b5e1a;
+  --accent2: #c8943a;
+  --confirmed: #e8f5ee;
+  --confirmed-text: #166534;
+  --interpretive: #e8f0f8;
+  --interpretive-text: #1e4a7a;
+  --speculative: #f0e8f5;
+  --speculative-text: #6b21a8;
+  --signal: #fef3e2;
+  --signal-text: #9a3412;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  transition: background 0.2s, color 0.2s;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Layout */
+.container { max-width: 780px; margin: 0 auto; padding: 0 1.25rem; }
+.wide { max-width: 1000px; margin: 0 auto; padding: 0 1.25rem; }
+
+/* Masthead */
+.masthead {
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 0 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.masthead-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.pub-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  line-height: 1.1;
+}
+.pub-title span { color: var(--accent); }
+.pub-meta {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+.pub-meta span {
+  font-size: 0.75rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.pub-meta .dot { color: var(--border2); }
+.tagline {
+  font-size: 0.8rem;
+  color: var(--text3);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+.theme-btn {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  font-size: 0.75rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  transition: background 0.15s;
+}
+.theme-btn:hover { background: var(--bg4); }
+
+/* Section headers */
+.section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+section { margin-bottom: 3rem; }
+
+/* At a Glance */
+.glance-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+@media (max-width: 520px) { .glance-grid { grid-template-columns: 1fr; } }
+.glance-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+}
+.glance-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+.glance-card p { font-size: 0.88rem; color: var(--text2); line-height: 1.5; }
+.glance-card .lead { color: var(--text); font-weight: 500; font-size: 0.92rem; }
+
+/* Signal pills */
+.pill {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 3px;
+  margin-bottom: 0.5rem;
+}
+.pill-confirmed { background: var(--confirmed); color: var(--confirmed-text); }
+.pill-interpretive { background: var(--interpretive); color: var(--interpretive-text); }
+.pill-speculative { background: var(--speculative); color: var(--speculative-text); }
+.pill-community { background: var(--signal); color: var(--signal-text); }
+
+/* Brief items */
+.brief-item {
+  border-bottom: 1px solid var(--border);
+  padding: 1.1rem 0;
+}
+.brief-item:last-child { border-bottom: none; }
+.brief-headline {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+  line-height: 1.35;
+}
+.brief-body { font-size: 0.87rem; color: var(--text2); margin-bottom: 0.4rem; line-height: 1.55; }
+.brief-implication {
+  font-size: 0.82rem;
+  color: var(--accent2);
+  font-style: italic;
+  margin-bottom: 0.4rem;
+}
+.source-line { font-size: 0.75rem; color: var(--text3); }
+.source-line a { color: var(--text3); }
+.source-line a:hover { color: var(--accent); }
+
+/* Top Story */
+.top-story {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.top-story-kicker {
+  background: var(--accent);
+  color: #0a0a0a;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.4rem 1.25rem;
+}
+.top-story-body { padding: 1.5rem 1.25rem; }
+.top-story-headline {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+.top-story-dek {
+  font-size: 0.92rem;
+  color: var(--text2);
+  margin-bottom: 1.25rem;
+  line-height: 1.55;
+}
+.brief-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+@media (max-width: 520px) { .brief-box { grid-template-columns: 1fr; } }
+.brief-box-item {}
+.brief-box-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.brief-box-item p { font-size: 0.84rem; color: var(--text2); line-height: 1.5; }
+.story-para { font-size: 0.92rem; color: var(--text2); margin-bottom: 0.9rem; line-height: 1.65; }
+.story-para:last-child { margin-bottom: 0; }
+
+/* Key Dates */
+.dates-list { display: flex; flex-direction: column; gap: 0.6rem; }
+.date-item {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.date-item:last-child { border-bottom: none; }
+.date-stamp {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.05rem;
+}
+.date-label { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+.date-why { font-size: 0.82rem; color: var(--text2); }
+
+/* Signals */
+.signal-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 0.75rem;
+}
+.signal-eyebrow {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.signal-headline { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: 0.6rem; line-height: 1.35; }
+.signal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+@media (max-width: 520px) { .signal-row { grid-template-columns: 1fr; } }
+.signal-field-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  margin-bottom: 0.2rem;
+}
+.signal-field p { font-size: 0.84rem; color: var(--text2); line-height: 1.5; }
+
+/* Market Pulse */
+.pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+@media (max-width: 540px) { .pulse-grid { grid-template-columns: 1fr; } }
+.pulse-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+}
+.pulse-metric {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.02em;
+}
+.pulse-label { font-size: 0.78rem; font-weight: 600; color: var(--text); margin-bottom: 0.35rem; }
+.pulse-body { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+
+/* Sentiment */
+.sentiment-item {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.sentiment-item:last-of-type { border-bottom: none; }
+.sentiment-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+.sentiment-topic { font-size: 0.98rem; font-weight: 600; color: var(--text); }
+.mood-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 3px;
+  background: var(--signal);
+  color: var(--signal-text);
+}
+.sentiment-react { font-size: 0.84rem; color: var(--text2); margin-bottom: 0.75rem; }
+.quote-block {
+  border-left: 2px solid var(--border2);
+  padding-left: 0.9rem;
+  margin-bottom: 0.6rem;
+}
+.quote-block p { font-size: 0.84rem; color: var(--text2); font-style: italic; line-height: 1.55; }
+.quote-source { font-size: 0.72rem; color: var(--text3); margin-top: 0.25rem; font-style: normal; }
+.editorial-read {
+  background: var(--bg3);
+  border-radius: 4px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.83rem;
+  color: var(--text2);
+  margin-top: 0.6rem;
+  line-height: 1.55;
+}
+.editorial-read strong { color: var(--text); font-weight: 600; }
+.sentiment-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text3);
+  font-style: italic;
+  border-top: 1px solid var(--border);
+  padding-top: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* Watch */
+.watch-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem 1rem;
+  align-items: start;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.watch-item:last-child { border-bottom: none; }
+.watch-q { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+.watch-why { font-size: 0.83rem; color: var(--text2); }
+.watch-type {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text3);
+  white-space: nowrap;
+  padding-top: 0.15rem;
+}
+
+/* Editor note */
+.editors-note {
+  background: var(--bg2);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 6px 6px 0;
+  padding: 1.25rem 1.4rem;
+  font-size: 0.92rem;
+  color: var(--text2);
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* Sources */
+.source-group { margin-bottom: 1.25rem; }
+.source-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text3);
+  margin-bottom: 0.5rem;
+}
+.source-group ul { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.source-group li { font-size: 0.8rem; }
+.source-group a { color: var(--text3); word-break: break-all; }
+.source-group a:hover { color: var(--accent); }
+.method-note {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.9rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text3);
+  line-height: 1.6;
+  margin-top: 1.25rem;
+}
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.footer-pub { font-size: 0.85rem; font-weight: 600; color: var(--text2); }
+.footer-meta { font-size: 0.78rem; color: var(--text3); }
+.footer-tag { font-size: 0.75rem; color: var(--text3); font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- MASTHEAD -->
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div>
+        <div class="pub-title">The <span>Dungeon</span> Economy</div>
+        <div class="pub-meta">
+          <span>Issue #1</span>
+          <span class="dot">·</span>
+          <span>April 5, 2026</span>
+          <span class="dot">·</span>
+          <span>Weekly</span>
+        </div>
+        <div class="tagline">A weekly brief on D&amp;D, publishing, platforms, and market signals.</div>
+      </div>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">Light mode</button>
+    </div>
+  </header>
+
+  <!-- AT A GLANCE -->
+  <section>
+    <div class="section-label">At a Glance</div>
+    <div class="glance-grid">
+      <div class="glance-card">
+        <div class="glance-label">Lead Signal</div>
+        <p class="lead">Ravenloft pre-orders open April 13 — the first commercial test of WotC's 2026 Seasons model, landing directly into a documented trust gap.</p>
+      </div>
+      <div class="glance-card">
+        <div class="glance-label">Verified This Week</div>
+        <p>2026 roadmap confirmed at GAMA. Ravenloft pricing and tier schedule confirmed. D&amp;D Beyond development roadmap published. Winter 2026 community survey launched. Mythozoology Kickstarter live and trending.</p>
+      </div>
+      <div class="glance-card">
+        <div class="glance-label">Critical Unknown</div>
+        <p>Season of Champions (Oct–Dec) anchor product unannounced. Community speculation points to Dark Sun. WotC has not confirmed.</p>
+      </div>
+      <div class="glance-card">
+        <div class="glance-label">Market Mood</div>
+        <p>Cautious engagement. Players are buying — but forum and survey data suggest the relationship between community and WotC is transactional rather than loyal.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THIS WEEK IN BRIEF -->
+  <section>
+    <div class="section-label">This Week in Brief</div>
+
+    <div class="brief-item">
+      <span class="pill pill-confirmed">Confirmed</span>
+      <div class="brief-headline">Ravenloft: The Horrors Within — pre-orders open April 13, wide release June 16</div>
+      <div class="brief-body">Eight horror subclasses, Dark Gift feats, new species, and expanded fear/dread rules. Priced at $59.99. D&amp;D Beyond tiered access: Master Tier June 2, Hero Tier June 9.</div>
+      <div class="brief-implication">First major 2024-ruleset expansion targeted at a specific playstyle rather than general character options.</div>
+      <div class="source-line">Sources: <a href="https://dungeonsanddragonsfan.com/dnd-release-schedule/" target="_blank">DnD Fan</a> · <a href="https://variety.com/2026/gaming/news/gaming-news-round-up-week-of-march-2-1236671906/" target="_blank">Variety/GAMA</a> · <a href="https://www.thegamer.com/dungeons-dragons-dnd-roadmap-2026-upcoming-release-calendar/" target="_blank">TheGamer</a></div>
+    </div>
+
+    <div class="brief-item">
+      <span class="pill pill-confirmed">Confirmed</span>
+      <div class="brief-headline">WotC launches Winter 2026 Community Survey — no NDA, with direct trust questions</div>
+      <div class="brief-body">Published on D&amp;D Beyond without an NDA — a deliberate departure from past practice. Includes explicit questions about player trust in WotC's direction. Official framing: "D&amp;D is at its best when it's built with our community."</div>
+      <div class="brief-implication">If WotC acts on results visibly, it could represent the start of a genuine feedback loop. If not, it will deepen distrust.</div>
+      <div class="source-line">Sources: <a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">D&amp;D Beyond (official)</a> · <a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/" target="_blank">EN World</a> · <a href="https://www.prismnews.com/hobbies/dungeons-dragons/wizards-of-the-coast-launches-winter-2026-dd-community" target="_blank">Prism News</a></div>
+    </div>
+
+    <div class="brief-item">
+      <span class="pill pill-confirmed">Confirmed</span>
+      <div class="brief-headline">Full 2026 Season structure confirmed at GAMA — organized play returning</div>
+      <div class="brief-body">Three seasons: Horror (Apr–Jun), Magic (Jul–Sep), Champions (Oct–Dec, anchor TBA). Each season bundles accessories ($24.99 each) with its anchor sourcebook. Organized play program returning alongside seasons.</div>
+      <div class="brief-implication">Organized play adds an in-store layer absent from the 5e era — could drive meaningful foot traffic back to game stores.</div>
+      <div class="source-line">Sources: <a href="https://variety.com/2026/gaming/news/gaming-news-round-up-week-of-march-2-1236671906/" target="_blank">Variety/GAMA</a> · <a href="https://www.enworld.org/threads/d-d%E2%80%99s-2026-announcements-roadmap-contains-a-mix-of-new-and-familiar.718171/" target="_blank">EN World</a> · <a href="https://screenrant.com/dnd-books-release-schedule-2026/" target="_blank">Screen Rant</a></div>
+    </div>
+
+    <div class="brief-item">
+      <span class="pill pill-confirmed">Confirmed</span>
+      <div class="brief-headline">D&amp;D Beyond publishes public development roadmap — ground-up platform rebuild in scope</div>
+      <div class="brief-body">Three major initiatives: rebuilt Game Platform, Character Builder 2.0, and streamlined DM Prep tools. Roadmap carries an explicit caveat: "Priorities and scope can change, and sometimes a planned feature may never launch at all."</div>
+      <div class="source-line">Sources: <a href="https://www.dndbeyond.com/posts/2132-d-d-beyonds-2026-development-roadmap" target="_blank">D&amp;D Beyond (official)</a> · <a href="https://www.thegamer.com/dungeons-dragons-dnd-roadmap-2026-upcoming-release-calendar/" target="_blank">TheGamer</a></div>
+    </div>
+  </section>
+
+  <!-- TOP STORY -->
+  <section>
+    <div class="section-label">Top Story</div>
+    <div class="top-story">
+      <div class="top-story-kicker">Season of Horror · Confirmed</div>
+      <div class="top-story-body">
+        <h2 class="top-story-headline">WotC's Seasons model faces its first commercial test — and lands into a trust deficit</h2>
+        <p class="top-story-dek">Ravenloft pre-orders open April 13, kicking off the 2026 Seasons framework. The community appetite for the setting is real. The goodwill toward WotC is not.</p>
+
+        <div class="brief-box">
+          <div class="brief-box-item">
+            <div class="brief-box-label">What happened</div>
+            <p>WotC confirmed Ravenloft: The Horrors Within pre-orders open April 13, priced at $59.99, with three bundled accessories at $24.99 each. Wide release June 16. Simultaneously, the Winter 2026 Community Survey launched on D&amp;D Beyond without an NDA — the first of a planned ongoing series.</p>
+          </div>
+          <div class="brief-box-item">
+            <div class="brief-box-label">Why it matters</div>
+            <p>Ravenloft is the first real commercial test of the Seasons framework. Pre-order performance will indicate whether the model generates genuine momentum — or whether community enthusiasm for the setting alone is enough to overcome sustained distrust of WotC as publisher.</p>
+          </div>
+          <div class="brief-box-item">
+            <div class="brief-box-label">Signal strength</div>
+            <p><span class="pill pill-confirmed">Confirmed</span> product and pricing. <span class="pill pill-interpretive">Interpretive</span> trust-gap framing.</p>
+          </div>
+          <div class="brief-box-item">
+            <div class="brief-box-label">D&amp;D implication</div>
+            <p>Dark Gift feats and new fear/dread mechanics are the first substantive 2024-ruleset expansion to target a specific play mode. If the book sells well, it validates horror as a commercial lane for future releases.</p>
+          </div>
+        </div>
+
+        <p class="story-para">Wizards of the Coast announced its full 2026 publishing roadmap at GAMA in early March, structured around three themed seasons. The Season of Horror runs April through June, anchored by Ravenloft: The Horrors Within and supported by a Tarokka Deck, DM Screen, and Map Pack — all at $24.99 each. The model is explicitly designed to create product clusters around each major release, mirroring how live-service games bundle accessories with content drops. At full attach — all three accessories plus the sourcebook — a player or DM spends approximately $135 per season.</p>
+
+        <p class="story-para">The survey launch this week adds a layer of complexity. WotC's decision to include direct trust questions and release the survey without an NDA signals that the company believes the damage from the 2023 OGL crisis is ongoing and measurable. Community response on D&amp;D Beyond and EN World has been pointed — the dominant register is accountability-seeking. A meaningful segment has committed to physical-only purchasing and declined to engage with D&amp;D Beyond regardless of product quality. That segment represents suppressed accessory attach even among buyers who want Ravenloft.</p>
+
+        <p class="story-para">What to watch: pre-order conversion on April 13 is the first hard data point on whether the Seasons model generates front-loaded commercial momentum. The Tarokka Deck — with its narrative function in Ravenloft play — is the accessory most likely to move. The DM Screen and Map Pack face a higher bar. If D&amp;D Beyond subscriber attach on accessories is lower than expected, that number will matter for how WotC prices and packages future seasons.</p>
+
+        <div class="source-line" style="margin-top:1rem;">Sources: <a href="https://variety.com/2026/gaming/news/gaming-news-round-up-week-of-march-2-1236671906/" target="_blank">Variety/GAMA</a> · <a href="https://dungeonsanddragonsfan.com/dnd-release-schedule/" target="_blank">DnD Fan</a> · <a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">D&amp;D Beyond</a> · <a href="https://gizmodo.com/dungeons-and-dragons-2026-roadmap-seasons-dnd-ravenloft-2000728869" target="_blank">io9</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY DATES -->
+  <section>
+    <div class="section-label">Key Dates</div>
+    <div class="dates-list">
+      <div class="date-item">
+        <div class="date-stamp">Apr 10</div>
+        <div>
+          <div class="date-label">7th Sea 3rd Edition Kickstarter closes</div>
+          <div class="date-why">Final funding total will update TTRPG crowdfunding benchmarks. Non-D&amp;D but drawing from the same hobbyist spend pool. <a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">EN World</a></div>
+        </div>
+      </div>
+      <div class="date-item">
+        <div class="date-stamp">Apr 13</div>
+        <div>
+          <div class="date-label">Ravenloft: The Horrors Within — pre-orders open</div>
+          <div class="date-why">First commercial test of the 2026 Seasons model. Pre-order conversion will be the clearest early signal of community purchasing intent. <a href="https://dungeonsanddragonsfan.com/dnd-release-schedule/" target="_blank">DnD Fan</a></div>
+        </div>
+      </div>
+      <div class="date-item">
+        <div class="date-stamp">Apr 16</div>
+        <div>
+          <div class="date-label">Mythozoology Kickstarter (DnD Shorts × Loot Tavern) closes</div>
+          <div class="date-why">Final total will confirm whether creator IP collabs are consistently clearing the million-dollar bar in 2026. <a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">EN World</a></div>
+        </div>
+      </div>
+      <div class="date-item">
+        <div class="date-stamp">Jun 2</div>
+        <div>
+          <div class="date-label">Ravenloft — D&amp;D Beyond Master Tier early access</div>
+          <div class="date-why">First digital delivery. Sets the pace for subscriber tier conversion under the Seasons model. <a href="https://dungeonsanddragonsfan.com/dnd-release-schedule/" target="_blank">DnD Fan</a></div>
+        </div>
+      </div>
+      <div class="date-item">
+        <div class="date-stamp">Jun 16</div>
+        <div>
+          <div class="date-label">Ravenloft wide release + Season of Horror accessories</div>
+          <div class="date-why">Tarokka Deck, DM Screen, and Map Pack all release alongside the sourcebook. Full attach data point becomes possible. <a href="https://variety.com/2026/gaming/news/gaming-news-round-up-week-of-march-2-1236671906/" target="_blank">Variety</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNALS AND SHIFTS -->
+  <section>
+    <div class="section-label">Signals &amp; Shifts</div>
+
+    <div class="signal-item">
+      <div class="signal-eyebrow">Commercial model · Interpretive</div>
+      <div class="signal-headline">The Seasons framework is a bet on accessory attach revenue, not just book sales</div>
+      <div class="signal-row">
+        <div class="signal-field">
+          <div class="signal-field-label">What's visible</div>
+          <p>Each Season bundles one sourcebook with three accessories at $24.99 each. At full attach with the $59.99 sourcebook, total per-season spend reaches approximately $135. The structure mirrors how Magic: The Gathering bundles accessories with set releases.</p>
+        </div>
+        <div class="signal-field">
+          <div class="signal-field-label">D&amp;D implication</div>
+          <p>If accessory attach is high, per-customer revenue rises significantly without requiring a higher book price. The Tarokka Deck has the strongest narrative justification for purchase. The DM Screen and Map Pack face a higher bar given they are more replaceable products.</p>
+        </div>
+      </div>
+      <div class="source-line">Sources: <a href="https://variety.com/2026/gaming/news/gaming-news-round-up-week-of-march-2-1236671906/" target="_blank">Variety/GAMA</a> · <a href="https://www.enworld.org/threads/d-d%E2%80%99s-2026-announcements-roadmap-contains-a-mix-of-new-and-familiar.718171/" target="_blank">EN World</a></div>
+    </div>
+
+    <div class="signal-item">
+      <div class="signal-eyebrow">Trust dynamics · Interpretive</div>
+      <div class="signal-headline">The trust gap is structural, not cyclical — and WotC's own survey design confirms it</div>
+      <div class="signal-row">
+        <div class="signal-field">
+          <div class="signal-field-label">What's visible</div>
+          <p>WotC included direct trust questions in a public, no-NDA survey — a deliberate departure from standard product feedback practice. EN World community noted the question's inclusion signals WotC believes the OGL crisis caused lasting damage. D&amp;D Beyond comment threads show a segment committed to physical-only purchasing as a permanent posture.</p>
+        </div>
+        <div class="signal-field">
+          <div class="signal-field-label">D&amp;D implication</div>
+          <p>A structurally distrustful playerbase is not a declining one — many will continue buying physical products. But the damage to D&amp;D Beyond subscription conversion and community goodwill around new initiatives, including the Seasons framework itself, is ongoing and suppresses the upside of each release.</p>
+        </div>
+      </div>
+      <div class="source-line">Sources: <a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/" target="_blank">EN World</a> · <a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">D&amp;D Beyond</a></div>
+    </div>
+
+    <div class="signal-item">
+      <div class="signal-eyebrow">Third-party market · Interpretive</div>
+      <div class="signal-headline">Independent publishers are timing releases to WotC's seasonal calendar — not competing with it</div>
+      <div class="signal-row">
+        <div class="signal-field">
+          <div class="signal-field-label">What's visible</div>
+          <p>Axis Saga (horror sourcebook, Q3 2026) and Mythozoology (live Kickstarter) are both positioned around the same audience appetite WotC is targeting. Axis Saga uses dual 2014/2024 compatibility as a deliberate market hedge, per ComicBook's April 4 reporting.</p>
+        </div>
+        <div class="signal-field">
+          <div class="signal-field-label">D&amp;D implication</div>
+          <p>The Seasons model may inadvertently create predictable content windows that third parties exploit. This could deepen the horror-content ecosystem around Ravenloft — or dilute WotC's commercial signal by fragmenting spend in the same window.</p>
+        </div>
+      </div>
+      <div class="source-line">Sources: <a href="https://comicbook.com/gaming/news/upcoming-dungeons-dragons-expansion-adds-a-new-horror-setting-with-a-fresh-take-on-vampires/" target="_blank">ComicBook</a> · <a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">EN World</a></div>
+    </div>
+  </section>
+
+  <!-- MARKET PULSE -->
+  <section>
+    <div class="section-label">Market Pulse</div>
+    <div class="pulse-grid">
+      <div class="pulse-card">
+        <div class="pulse-metric">~$1M</div>
+        <div class="pulse-label">Mythozoology — Day-one Kickstarter performance</div>
+        <div class="pulse-body">DnD Shorts × Loot Tavern creator collab. Closes April 16. Prominently human-made AI statement featured in campaign materials — a deliberate positioning signal given community AI anxiety. Campaign overlaps with Ravenloft pre-order window.</div>
+        <div class="source-line" style="margin-top:0.5rem;"><a href="https://ttrpgfans.com/kickstarter-rpg/" target="_blank">TTRPG Fans</a> · <a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">EN World</a></div>
+      </div>
+      <div class="pulse-card">
+        <div class="pulse-metric">~$135</div>
+        <div class="pulse-label">Full attach per Season — Ravenloft Season of Horror</div>
+        <div class="pulse-body">$59.99 sourcebook + three accessories at $24.99 each. Tarokka Deck has clearest narrative function. DM Screen and Map Pack face a softer attach case. This is the revenue structure WotC's Seasons model depends on.</div>
+        <div class="source-line" style="margin-top:0.5rem;"><a href="https://variety.com/2026/gaming/news/gaming-news-round-up-week-of-march-2-1236671906/" target="_blank">Variety/GAMA</a> · <a href="https://dungeonsanddragonsfan.com/dnd-release-schedule/" target="_blank">DnD Fan</a></div>
+      </div>
+      <div class="pulse-card">
+        <div class="pulse-metric">Live</div>
+        <div class="pulse-label">7th Sea 3rd Edition Kickstarter — closes April 10</div>
+        <div class="pulse-body">Successor to the first-ever million-dollar TTRPG Kickstarter (7th Sea 2e, 2016). Non-D&amp;D, but drawing from the same engaged hobbyist spend pool that WotC is competing for with Ravenloft pre-orders.</div>
+        <div class="source-line" style="margin-top:0.5rem;"><a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">EN World</a></div>
+      </div>
+      <div class="pulse-card">
+        <div class="pulse-metric">Ground-up</div>
+        <div class="pulse-label">D&amp;D Beyond platform rebuild — no delivery date confirmed</div>
+        <div class="pulse-body">Character Builder 2.0 and DM Prep overhaul in scope. WotC has explicitly caveated that scope can change and features may not ship. A successful rebuild strengthens WotC's digital moat. A public delay will amplify community distrust with a roadmap already on record.</div>
+        <div class="source-line" style="margin-top:0.5rem;"><a href="https://www.dndbeyond.com/posts/2132-d-d-beyonds-2026-development-roadmap" target="_blank">D&amp;D Beyond (official)</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMUNITY SENTIMENT -->
+  <section>
+    <div class="section-label">Community Sentiment</div>
+
+    <div class="sentiment-item">
+      <div class="sentiment-header">
+        <span class="sentiment-topic">The Winter 2026 Survey</span>
+        <span class="mood-pill">Skeptical</span>
+      </div>
+      <p class="sentiment-react">Players are reacting to the survey's explicit trust questions and the no-NDA release — both read as unusual moves that signal WotC believes the OGL crisis left lasting damage.</p>
+      <div class="quote-block">
+        <p>"Still haven't forgiven the OGL crap or so on. The best thing for this community and this IP is to distance itself from WotC along with Hasbro."</p>
+        <div class="quote-source">— D&amp;D Beyond comment thread · <a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">source</a></div>
+      </div>
+      <div class="quote-block">
+        <p>"'Do you trust us' definitely suggests that, for all that people online poo-poo the OGL crisis, WotC thinks it's had an impact."</p>
+        <div class="quote-source">— EN World forum · <a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/" target="_blank">source</a></div>
+      </div>
+      <div class="editorial-read"><strong>Editorial read:</strong> The dominant register in sampled responses is accountability-seeking, not enthusiasm. The survey is being engaged with — but as an opportunity to register grievances rather than provide product feedback. A meaningful minority appear to have settled into a permanently transactional posture: physical books only, no D&amp;D Beyond.</div>
+      <div class="source-line" style="margin-top:0.6rem;">Sources: <a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">D&amp;D Beyond</a> · <a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/" target="_blank">EN World</a> · <a href="https://www.prismnews.com/hobbies/dungeons-dragons/wizards-of-the-coast-launches-winter-2026-dd-community" target="_blank">Prism News</a></div>
+    </div>
+
+    <div class="sentiment-item">
+      <div class="sentiment-header">
+        <span class="sentiment-topic">The 2024 Rules — Year Two Reception</span>
+        <span class="mood-pill">Divided / Fatigued</span>
+      </div>
+      <p class="sentiment-react">With all three 2024 core books available and still no full campaign adventure published under the new ruleset, community discussion about whether 5.5e has meaningfully landed continues.</p>
+      <div class="quote-block">
+        <p>"I do not play 2024 D&amp;D. I want 2014 D&amp;D full compatibility as a native tool, not a second-rate experience. This is a dealbreaker for me."</p>
+        <div class="quote-source">— D&amp;D Beyond roadmap comments · <a href="https://www.dndbeyond.com/posts/2132-d-d-beyonds-2026-development-roadmap" target="_blank">source</a></div>
+      </div>
+      <div class="quote-block">
+        <p>"5.5e was a halfbaked directionless mess. Lean into good lore, don't skimp on page count, respect the intelligence of your customers."</p>
+        <div class="quote-source">— EN World forum · <a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/page-3" target="_blank">source</a></div>
+      </div>
+      <div class="editorial-read"><strong>Editorial read:</strong> The 2014/2024 rules split is a real and ongoing market friction point, not a resolved transition. A segment has opted out of the 2024 rules entirely and is vocal about it. The absence of a 2024-native full campaign adventure amplifies the sense that the new rules still lack a flagship use case heading into their second year.</div>
+      <div class="source-line" style="margin-top:0.6rem;">Sources: <a href="https://www.dndbeyond.com/posts/2132-d-d-beyonds-2026-development-roadmap" target="_blank">D&amp;D Beyond</a> · <a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/" target="_blank">EN World</a></div>
+    </div>
+
+    <p class="sentiment-disclaimer">Sentiment labels are editorial judgments based on sampled official comments, forum activity, review discussion, and community threads. They are intended as directional reads, not scientific polling.</p>
+  </section>
+
+  <!-- WHAT TO WATCH -->
+  <section>
+    <div class="section-label">What to Watch</div>
+
+    <div class="watch-item">
+      <div>
+        <div class="watch-q">Will Ravenloft pre-orders signal real Seasons momentum?</div>
+        <div class="watch-why">April 13 is the first hard commercial data point on the Seasons model. Pre-order conversion indicates whether community enthusiasm for Ravenloft overcomes the trust deficit. <a href="https://dungeonsanddragonsfan.com/dnd-release-schedule/" target="_blank">Source</a></div>
+      </div>
+      <div class="watch-type">Apr 13 · Market</div>
+    </div>
+
+    <div class="watch-item">
+      <div>
+        <div class="watch-q">Does WotC act on survey data visibly?</div>
+        <div class="watch-why">A no-NDA public survey implies some transparency obligation. Silence after the survey closes will be read as performative. Watch for a follow-up post on D&amp;D Beyond. <a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">Source</a></div>
+      </div>
+      <div class="watch-type">Ongoing · Trust</div>
+    </div>
+
+    <div class="watch-item">
+      <div>
+        <div class="watch-q">What is the Season of Champions anchor product?</div>
+        <div class="watch-why">Dark Sun and Dragonlance are the two most-cited community guesses, based on Unearthed Arcana playtests. No confirmed date. Would be the biggest D&amp;D story of the year if announced. <a href="https://www.enworld.org/threads/d-d%E2%80%99s-2026-announcements-roadmap-contains-a-mix-of-new-and-familiar.718171/" target="_blank">Source</a></div>
+      </div>
+      <div class="watch-type">Speculative · Q3</div>
+    </div>
+
+    <div class="watch-item">
+      <div>
+        <div class="watch-q">Does Mythozoology clear its final funding total above $1M?</div>
+        <div class="watch-why">Closes April 16. Final number updates the 2026 TTRPG crowdfunding benchmark and confirms whether creator IP collabs are consistently outperforming solo campaigns. <a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">Source</a></div>
+      </div>
+      <div class="watch-type">Apr 16 · Market</div>
+    </div>
+
+    <div class="watch-item">
+      <div>
+        <div class="watch-q">Does D&amp;D Beyond Character Builder 2.0 receive a concrete timeline?</div>
+        <div class="watch-why">No delivery date confirmed. Public roadmap is on record. Any update — or visible delay — will be a significant community moment given documented frustration with the current builder's 2014 compatibility. <a href="https://www.dndbeyond.com/posts/2132-d-d-beyonds-2026-development-roadmap" target="_blank">Source</a></div>
+      </div>
+      <div class="watch-type">Ongoing · Platform</div>
+    </div>
+  </section>
+
+  <!-- EDITOR'S NOTE -->
+  <section>
+    <div class="section-label">Editor's Note</div>
+    <div class="editors-note">
+      The deeper story this week is not Ravenloft — it's the gap between a product WotC knows how to make and a community relationship WotC doesn't yet know how to repair. The Seasons model is structurally sensible: predictable windows, bundled accessories, revived organized play. On paper, it gives retailers, creators, and players a calendar to plan around. But it is being launched into conditions where the publisher's own survey had to ask "do you trust us?" — and where the community's most common answer was some variation of "not yet." Ravenloft is a beloved setting. The Tarokka Deck has genuine table utility. The horror subclasses address real gaps in the 2024 ruleset. None of that changes the underlying dynamic: trust is now a line item in WotC's commercial logic, and April 13 is the first data point on whether enthusiasm for the product can travel independently of enthusiasm for the publisher.
+    </div>
+  </section>
+
+  <!-- SOURCES AND METHOD -->
+  <section>
+    <div class="section-label">Sources &amp; Method</div>
+
+    <div class="source-group">
+      <div class="source-group-label">Official</div>
+      <ul>
+        <li><a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">D&amp;D Beyond — Winter 2026 Community Survey</a></li>
+        <li><a href="https://www.dndbeyond.com/posts/2132-d-d-beyonds-2026-development-roadmap" target="_blank">D&amp;D Beyond — 2026 Development Roadmap</a></li>
+      </ul>
+    </div>
+
+    <div class="source-group">
+      <div class="source-group-label">Reporting</div>
+      <ul>
+        <li><a href="https://www.enworld.org/threads/d-d%E2%80%99s-2026-announcements-roadmap-contains-a-mix-of-new-and-familiar.718171/" target="_blank">EN World — 2026 Roadmap analysis</a></li>
+        <li><a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/" target="_blank">EN World — Winter 2026 survey thread</a></li>
+        <li><a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">EN World — Crowdfunding roundup (April 7–22)</a></li>
+        <li><a href="https://variety.com/2026/gaming/news/gaming-news-round-up-week-of-march-2-1236671906/" target="_blank">Variety — GAMA roadmap coverage</a></li>
+        <li><a href="https://gizmodo.com/dungeons-and-dragons-2026-roadmap-seasons-dnd-ravenloft-2000728869" target="_blank">io9 — Seasons model analysis</a></li>
+        <li><a href="https://screenrant.com/dnd-books-release-schedule-2026/" target="_blank">Screen Rant — 2026 release schedule</a></li>
+        <li><a href="https://www.prismnews.com/hobbies/dungeons-dragons/wizards-of-the-coast-launches-winter-2026-dd-community" target="_blank">Prism News — Survey coverage</a></li>
+        <li><a href="https://www.belloflostsouls.net/2026/03/time-to-let-wotc-know-what-you-think-in-dds-winter-community-survey.html" target="_blank">Bell of Lost Souls — Survey coverage</a></li>
+        <li><a href="https://comicbook.com/gaming/news/upcoming-dungeons-dragons-expansion-adds-a-new-horror-setting-with-a-fresh-take-on-vampires/" target="_blank">ComicBook — Axis Saga</a></li>
+        <li><a href="https://bleedingcool.com/games/dungeons-dragons-reveals-their-2026-content-roadmap/" target="_blank">Bleeding Cool — 2026 roadmap</a></li>
+        <li><a href="https://www.thegamer.com/dungeons-dragons-dnd-roadmap-2026-upcoming-release-calendar/" target="_blank">TheGamer — Release schedule</a></li>
+        <li><a href="https://dungeonsanddragonsfan.com/dnd-release-schedule/" target="_blank">DnD Fan — Release schedule</a></li>
+        <li><a href="https://ttrpgfans.com/kickstarter-rpg/" target="_blank">TTRPG Fans — Kickstarter coverage</a></li>
+      </ul>
+    </div>
+
+    <div class="source-group">
+      <div class="source-group-label">Community</div>
+      <ul>
+        <li><a href="https://www.enworld.org/threads/wotc-winter-2026-d-d-community-survey.718378/" target="_blank">EN World survey thread (pages 3, 4, 8)</a></li>
+        <li><a href="https://www.dndbeyond.com/posts/2142-take-the-winter-2026-d-d-community-survey" target="_blank">D&amp;D Beyond — Survey comment thread</a></li>
+        <li><a href="https://www.dndbeyond.com/posts/2132-d-d-beyonds-2026-development-roadmap" target="_blank">D&amp;D Beyond — Roadmap comment thread</a></li>
+      </ul>
+    </div>
+
+    <div class="source-group">
+      <div class="source-group-label">Market / Commercial</div>
+      <ul>
+        <li><a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-mythic-legions-godzilla-temeraire-and-more.718320/" target="_blank">EN World — Crowdfunding roundup (March 26–April 8)</a></li>
+        <li><a href="https://www.enworld.org/threads/rpg-crowdfunding-news-%E2%80%93-dnd-shorts-7th-sea-tunnels-trolls-and-more.718504/" target="_blank">EN World — Crowdfunding roundup (April 7–22)</a></li>
+        <li><a href="https://www.enworld.org/threads/million-dollar-ttrpg-kickstarter-club.678540/" target="_blank">EN World — Million dollar club tracker</a></li>
+        <li><a href="https://ttrpgfans.com/kickstarter-rpg/" target="_blank">TTRPG Fans — Kickstarter tracker</a></li>
+      </ul>
+    </div>
+
+    <div class="method-note">This report combines official product and publisher information, secondary reporting, community discussion, and commercial signal tracking. Hard facts are sourced primarily from official pages and listings. Community discussion is used to assess sentiment, not establish factual claims. Strategic conclusions are labeled separately as interpretation or speculation where appropriate.</div>
+  </section>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-pub">The Dungeon Economy · Issue #1</div>
+        <div class="footer-meta">April 5, 2026</div>
+      </div>
+      <div class="footer-tag">Where D&amp;D meets product, platform, and demand.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent = isLight ? 'Dark mode' : 'Light mode';
+  try { localStorage.setItem('tde-theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('tde-theme') === 'light') {
+      document.body.classList.add('light');
+      document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('themeBtn');
+        if (btn) btn.textContent = 'Dark mode';
+      });
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
