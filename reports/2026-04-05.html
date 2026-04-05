@@ -436,15 +436,43 @@
       .topbar-inner { min-height: 58px; }
     }
   </style>
+  <style id="de-nav-style">
+    .de-home-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 0.95rem; font-weight: 600; color: var(--text);
+      text-decoration: none; letter-spacing: 0.01em;
+    }
+    .de-home-btn:hover { color: var(--accent); text-decoration: none; }
+    .de-nav-group { display: flex; align-items: center; gap: 8px; }
+    .de-nav-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--bg-elev);
+      color: var(--muted); font-size: 0.82rem; font-weight: 600;
+      text-decoration: none; transition: border-color .15s, color .15s;
+      white-space: nowrap;
+    }
+    .de-nav-btn:hover { border-color: color-mix(in srgb, var(--accent) 42%, var(--line)); color: var(--accent); text-decoration: none; }
+    .de-nav-btn.disabled { opacity: 0.35; pointer-events: none; }
+    .de-nav-divider { width: 1px; height: 18px; background: var(--line); margin: 0 2px; }
+  </style>
 </head>
 <body>
 
   <div class="topbar">
-    <div class="wrap topbar-inner">
-      <div class="brand-mini">
+        <div class="wrap topbar-inner">
+      <a href="../index.html" class="de-home-btn" aria-label="Back to archive">
         <span class="brand-dot" aria-hidden="true"></span>
         <strong>The Dungeon Economy</strong>
+      </a>
+      <div class="de-nav-group">
+        <a href="#" class="de-nav-btn disabled">← Previous</a>
+        <span class="de-nav-divider" aria-hidden="true"></span>
+        <a href="#" class="de-nav-btn disabled">Next →</a>
+        <button class="toggle" id="themeToggle" type="button" aria-label="Toggle theme">Light mode</button>
       </div>
+    </div>
+  </div>
       <button class="toggle" id="themeToggle" type="button" aria-label="Toggle light and dark mode">Light mode</button>
     </div>
   </div>
