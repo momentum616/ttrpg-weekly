@@ -6,20 +6,33 @@
   <title>TTRPG Weekly Intelligence</title>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:system-ui,-apple-system,sans-serif;background:#f8f8f6;color:#1a1a18;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
-    .card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:2.5rem;max-width:480px;text-align:center;}
-    .badge{display:inline-block;background:#EEEDFE;color:#3C3489;font-size:12px;font-weight:600;padding:4px 12px;border-radius:6px;margin-bottom:1.25rem;}
-    h1{font-size:22px;font-weight:600;margin-bottom:8px;}
-    p{font-size:14px;color:#5a5a56;line-height:1.6;}
-    .dot{display:inline-block;width:8px;height:8px;background:#7F77DD;border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite;}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    body{font-family:system-ui,-apple-system,sans-serif;background:#f8f8f6;color:#1a1a18;padding:2rem 1rem;min-height:100vh;}
+    .wrap{max-width:720px;margin:0 auto;}
+    header{border-bottom:1px solid #e8e6e0;padding-bottom:1.5rem;margin-bottom:2rem;}
+    header h1{font-size:24px;font-weight:600;margin-bottom:4px;}
+    header p{font-size:14px;color:#5a5a56;}
+    .stats{display:flex;gap:12px;margin-bottom:2rem;flex-wrap:wrap;}
+    .stat{background:#fff;border:1px solid #e8e6e0;border-radius:8px;padding:12px 16px;flex:1;min-width:120px;}
+    .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:4px;}
+    .stat-value{font-size:20px;font-weight:600;}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+    .empty{text-align:center;padding:3rem;color:#aaa;font-size:14px;}
+    footer{margin-top:3rem;padding-top:1.5rem;border-top:1px solid #e8e6e0;font-size:12px;color:#aaa;text-align:center;}
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="badge">Ready to publish</div>
-    <h1>TTRPG Weekly Intelligence</h1>
-    <p><span class="dot"></span>First issue coming soon. Drop a dated HTML file into <code>/reports</code> to publish.</p>
+  <div class="wrap">
+    <header>
+      <h1>TTRPG Weekly Intelligence</h1>
+      <p>D&amp;D-focused · Industry-wide · Published weekly</p>
+    </header>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Total issues</div><div class="stat-value">0</div></div>
+      <div class="stat"><div class="stat-label">Focus</div><div class="stat-value" style="font-size:14px;padding-top:3px;">D&amp;D + Industry</div></div>
+      <div class="stat"><div class="stat-label">Cadence</div><div class="stat-value" style="font-size:14px;padding-top:3px;">Weekly</div></div>
+    </div>
+    <div class='empty'>No reports yet. Drop your first HTML file into /reports to get started.</div>
+    <footer>Powered by Claude &nbsp;·&nbsp; Sources: EN World · TTRPG Insider · Dicebreaker · Reddit · Kickstarter</footer>
   </div>
 </body>
 </html>
