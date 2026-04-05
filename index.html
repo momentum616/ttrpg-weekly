@@ -1,25 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TTRPG Weekly Intelligence</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Dungeon Economy — Archive</title>
+  <meta name="description" content="Archive of The Dungeon Economy — a weekly brief on D&D, publishing, platforms, and market signals." />
   <style>
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:system-ui,-apple-system,sans-serif;background:#f8f8f6;color:#1a1a18;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
-    .card{background:#fff;border:1px solid #e8e6e0;border-radius:12px;padding:2.5rem;max-width:480px;text-align:center;}
-    .badge{display:inline-block;background:#EEEDFE;color:#3C3489;font-size:12px;font-weight:600;padding:4px 12px;border-radius:6px;margin-bottom:1.25rem;}
-    h1{font-size:22px;font-weight:600;margin-bottom:8px;}
-    p{font-size:14px;color:#5a5a56;line-height:1.6;}
-    .dot{display:inline-block;width:8px;height:8px;background:#7F77DD;border-radius:50%;margin-right:6px;animation:pulse 1.5s infinite;}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    :root {
+      --bg: #0c0f14;
+      --bg-elev: #121722;
+      --card: rgba(255,255,255,0.04);
+      --line: rgba(255,255,255,0.10);
+      --text: #edf2f8;
+      --muted: #aeb8ca;
+      --soft: #8e98ab;
+      --accent: #8ab4ff;
+      --accent-2: #93f0c8;
+      --shadow: 0 18px 44px rgba(0,0,0,0.28);
+      --radius: 18px;
+      --max: 1220px;
+    }
+    html[data-theme="light"] {
+      --bg: #f4eee4;
+      --bg-elev: #fbf7ef;
+      --card: rgba(74,56,28,0.05);
+      --line: rgba(74,56,28,0.12);
+      --text: #211a14;
+      --muted: #605648;
+      --soft: #7d7163;
+      --accent: #245dc5;
+      --accent-2: #0a8b69;
+      --shadow: 0 14px 34px rgba(82,59,28,0.10);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(138,180,255,0.11), transparent 28%),
+        radial-gradient(circle at top right, rgba(147,240,200,0.08), transparent 22%),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58; -webkit-font-smoothing: antialiased; min-height: 100vh;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      backdrop-filter: blur(12px);
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand-mini { display: flex; align-items: center; gap: 10px; }
+    .brand-dot {
+      width: 11px; height: 11px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 0 0 5px rgba(138,180,255,0.10); flex: 0 0 auto;
+    }
+    .brand-mini strong { font-size: 0.95rem; letter-spacing: 0.01em; }
+    .toggle {
+      border: 1px solid var(--line); background: var(--bg-elev); color: var(--text);
+      padding: 10px 14px; border-radius: 999px; cursor: pointer; font: inherit;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .toggle:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent) 42%, var(--line)); }
+    header.hero { padding: 42px 0 26px; }
+    .hero-grid { display: grid; grid-template-columns: 1.4fr .85fr; gap: 24px; }
+    .masthead, .header-side {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-elev) 94%, transparent), var(--bg-elev));
+      border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .masthead { position: relative; overflow: hidden; padding: 28px 28px 24px; }
+    .masthead::after {
+      content: ""; position: absolute; right: -42px; bottom: -42px;
+      width: 190px; height: 190px; border-radius: 999px;
+      background: radial-gradient(circle, rgba(138,180,255,0.16), transparent 66%); pointer-events: none;
+    }
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; font-weight: 800;
+    }
+    .kicker::before { content: ""; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
+    h1 { margin: 0; font-size: clamp(2.25rem, 5vw, 4rem); line-height: 0.96; letter-spacing: -0.045em; }
+    .tagline { margin: 14px 0 0; color: var(--muted); max-width: 58ch; font-size: 1.04rem; }
+    .issue-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    .chip { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--muted); font-size: 0.9rem; }
+    .header-side { padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; }
+    .header-side h2 { margin: 0 0 12px; font-size: 0.86rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--soft); }
+    .header-note { margin: 0; font-size: 1rem; }
+    .header-meta { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 0.94rem; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; margin: 28px 0 0; }
+    .stat-card {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-elev) 94%, transparent), var(--bg-elev));
+      border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px;
+    }
+    .stat-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--soft); font-weight: 800; margin-bottom: 8px; }
+    .stat-value { font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--accent); }
+    .stat-value.sm { font-size: 1.2rem; padding-top: 4px; }
+    .stat-sub { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+    main { padding: 28px 0 72px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .section-head h2 { margin: 0; font-size: clamp(1.38rem, 2vw, 1.78rem); line-height: 1.12; letter-spacing: -0.02em; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .archive-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
+    .issue-card {
+      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-elev) 94%, transparent), var(--bg-elev));
+      border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 20px; display: flex; flex-direction: column; gap: 10px;
+      text-decoration: none; transition: transform .15s ease, border-color .15s ease;
+    }
+    .issue-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); text-decoration: none; }
+    .issue-card.latest { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+    .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .issue-num { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); }
+    .latest-badge {
+      font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 4px 8px; border-radius: 999px;
+      background: color-mix(in srgb, var(--accent) 18%, transparent);
+      color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+    .card-date { font-size: 0.88rem; color: var(--muted); }
+    .card-title { font-size: 1.02rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; line-height: 1.25; }
+    .card-preview { font-size: 0.88rem; color: var(--soft); line-height: 1.5; flex: 1; }
+    .card-arrow { font-size: 0.8rem; color: var(--accent); margin-top: 4px; }
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; color: var(--soft); }
+    .empty-state p { font-size: 1rem; max-width: 40ch; margin: 0 auto; }
+    footer { margin-top: 32px; padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--muted); }
+    .footer-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: end; }
+    .footer-grid strong { display: block; color: var(--text); margin-bottom: 4px; }
+    @media (max-width: 1080px) {
+      .hero-grid { grid-template-columns: 1fr 1fr; }
+      .archive-grid { grid-template-columns: 1fr 1fr; }
+      .stats-row { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    @media (max-width: 760px) {
+      .wrap { width: min(var(--max), calc(100% - 20px)); }
+      .hero-grid, .archive-grid, .stats-row { grid-template-columns: 1fr; }
+      .masthead, .header-side, .stat-card, .issue-card { padding: 16px; }
+      .topbar-inner { min-height: 58px; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="badge">Ready to publish</div>
-    <h1>TTRPG Weekly Intelligence</h1>
-    <p><span class="dot"></span>First issue coming soon. Drop a dated HTML file into <code>/reports</code> to publish.</p>
+  <div class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand-mini">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <strong>The Dungeon Economy</strong>
+      </div>
+      <button class="toggle" id="themeToggle" type="button" aria-label="Toggle light and dark mode">Light mode</button>
+    </div>
   </div>
+
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div class="masthead">
+        <div class="kicker">Issue Archive</div>
+        <h1>The Dungeon Economy</h1>
+        <p class="tagline">A weekly brief on D&amp;D, publishing, platforms, and market signals.</p>
+        <div class="issue-row">
+          <span class="chip">Weekly</span>
+          <span class="chip">D&amp;D · Publishing · Platforms · Demand</span>
+        </div>
+      </div>
+      <aside class="header-side">
+        <div>
+          <h2>About this publication</h2>
+          <p class="header-note">Each issue tracks what changed in D&amp;D and the wider tabletop market, separates confirmed fact from interpretation, and surfaces the commercial and community signals that matter for players, DMs, and creators.</p>
+        </div>
+        <div class="header-meta">Where D&amp;D meets product, platform, and demand.</div>
+      </aside>
+    </div>
+
+    <div class="wrap stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Issues published</div>
+        <div class="stat-value">0</div>
+        <div class="stat-sub">and counting</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Focus</div>
+        <div class="stat-value sm">D&amp;D + Industry</div>
+        <div class="stat-sub">WotC-first, market-wide</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cadence</div>
+        <div class="stat-value sm">Weekly</div>
+        <div class="stat-sub">Published every Friday</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="section-head">
+      <div><h2>All Issues</h2></div>
+      <p>Most recent first.</p>
+    </div>
+    <div class="archive-grid">
+      
+      <div class="empty-state">
+        <p>No reports yet. Drop your first dated HTML file into /reports to get started.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap footer-grid">
+      <div>
+        <strong>The Dungeon Economy</strong>
+        <div>Weekly intelligence brief</div>
+      </div>
+      <div>Where D&amp;D meets product, platform, and demand.</div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const key = 'dungeon-economy-theme';
+      const root = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      function apply(theme) {
+        root.setAttribute('data-theme', theme);
+        btn.textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
+      }
+      const saved = localStorage.getItem(key);
+      apply(saved === 'light' || saved === 'dark' ? saved : 'dark');
+      btn.addEventListener('click', function () {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(key, next);
+        apply(next);
+      });
+    })();
+  </script>
 </body>
 </html>
