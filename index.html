@@ -32,10 +32,10 @@
       --accent-2: #0a8b69;
       --shadow: 0 14px 34px rgba(82,59,28,0.10);
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
-      margin: 0; color: var(--text);
+      color: var(--text);
       background:
         radial-gradient(circle at top left, rgba(138,180,255,0.11), transparent 28%),
         radial-gradient(circle at top right, rgba(147,240,200,0.08), transparent 22%),
@@ -45,14 +45,18 @@
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .wrap { width: min(var(--max), calc(100% - 32px)); margin: 0 auto; }
+    .wrap { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
+
     .topbar {
       position: sticky; top: 0; z-index: 40;
       backdrop-filter: blur(12px);
       background: color-mix(in srgb, var(--bg) 84%, transparent);
       border-bottom: 1px solid var(--line);
     }
-    .topbar-inner { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .topbar-inner {
+      min-height: 64px; display: flex; align-items: center;
+      justify-content: space-between; gap: 16px;
+    }
     .brand-mini { display: flex; align-items: center; gap: 10px; }
     .brand-dot {
       width: 11px; height: 11px; border-radius: 999px;
@@ -63,15 +67,17 @@
     .toggle {
       border: 1px solid var(--line); background: var(--bg-elev); color: var(--text);
       padding: 10px 14px; border-radius: 999px; cursor: pointer; font: inherit;
-      transition: transform .15s ease, border-color .15s ease;
+      transition: transform .15s ease, border-color .15s ease; white-space: nowrap;
     }
     .toggle:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent) 42%, var(--line)); }
-    header.hero { padding: 42px 0 26px; }
-    .hero-grid { display: grid; grid-template-columns: 1.4fr .85fr; gap: 24px; }
-    .masthead, .header-side {
+
+    /* Hero — all children inside .wrap for consistent alignment */
+    header.hero { padding: 42px 0 0; }
+    .card-surface {
       background: linear-gradient(180deg, color-mix(in srgb, var(--bg-elev) 94%, transparent), var(--bg-elev));
       border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
     }
+    .hero-grid { display: grid; grid-template-columns: 1.4fr 0.85fr; gap: 24px; }
     .masthead { position: relative; overflow: hidden; padding: 28px 28px 24px; }
     .masthead::after {
       content: ""; position: absolute; right: -42px; bottom: -42px;
@@ -80,30 +86,35 @@
     }
     .kicker {
       display: inline-flex; align-items: center; gap: 8px; margin-bottom: 14px;
-      color: var(--muted); text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; font-weight: 800;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.16em;
+      font-size: 0.72rem; font-weight: 800;
     }
     .kicker::before { content: ""; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
-    h1 { margin: 0; font-size: clamp(2.25rem, 5vw, 4rem); line-height: 0.96; letter-spacing: -0.045em; }
+    h1 { font-size: clamp(2.25rem, 5vw, 4rem); line-height: 0.96; letter-spacing: -0.045em; }
     .tagline { margin: 14px 0 0; color: var(--muted); max-width: 58ch; font-size: 1.04rem; }
     .issue-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
-    .chip { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--muted); font-size: 0.9rem; }
-    .header-side { padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; }
-    .header-side h2 { margin: 0 0 12px; font-size: 0.86rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--soft); }
-    .header-note { margin: 0; font-size: 1rem; }
-    .header-meta { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 0.94rem; }
-    .stats-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; margin: 28px 0 0; }
-    .stat-card {
-      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-elev) 94%, transparent), var(--bg-elev));
-      border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px;
+    .chip {
+      display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--card); color: var(--muted); font-size: 0.9rem;
     }
+    .header-side { padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 18px; }
+    .header-side h2 { font-size: 0.86rem; text-transform: uppercase; letter-spacing: 0.15em; color: var(--soft); margin-bottom: 12px; }
+    .header-note { font-size: 1rem; }
+    .header-meta { border-top: 1px solid var(--line); padding-top: 14px; color: var(--muted); font-size: 0.94rem; }
+
+    /* Stats — inside .wrap, same gutter as hero-grid */
+    .stats-row { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 24px; margin-top: 24px; }
+    .stat-card { padding: 18px; }
     .stat-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--soft); font-weight: 800; margin-bottom: 8px; }
     .stat-value { font-size: clamp(1.55rem, 3vw, 2.2rem); font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--accent); }
     .stat-value.sm { font-size: 1.2rem; padding-top: 4px; }
     .stat-sub { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
-    main { padding: 28px 0 72px; }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
-    .section-head h2 { margin: 0; font-size: clamp(1.38rem, 2vw, 1.78rem); line-height: 1.12; letter-spacing: -0.02em; }
-    .section-head p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+    /* Archive */
+    main { padding: 36px 0 72px; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .section-head h2 { font-size: clamp(1.38rem, 2vw, 1.78rem); line-height: 1.12; letter-spacing: -0.02em; }
+    .section-head p { color: var(--muted); font-size: 0.95rem; }
     .archive-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
     .issue-card {
       background: linear-gradient(180deg, color-mix(in srgb, var(--bg-elev) 94%, transparent), var(--bg-elev));
@@ -127,79 +138,86 @@
     .card-arrow { font-size: 0.8rem; color: var(--accent); margin-top: 4px; }
     .empty-state { grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; color: var(--soft); }
     .empty-state p { font-size: 1rem; max-width: 40ch; margin: 0 auto; }
-    footer { margin-top: 32px; padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--muted); }
-    .footer-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: end; }
-    .footer-grid strong { display: block; color: var(--text); margin-bottom: 4px; }
+
+    footer { padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--muted); }
+    .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: end; }
+    .footer-inner strong { display: block; color: var(--text); margin-bottom: 4px; }
+
     @media (max-width: 1080px) {
       .hero-grid { grid-template-columns: 1fr 1fr; }
       .archive-grid { grid-template-columns: 1fr 1fr; }
       .stats-row { grid-template-columns: 1fr 1fr 1fr; }
     }
     @media (max-width: 760px) {
-      .wrap { width: min(var(--max), calc(100% - 20px)); }
-      .hero-grid, .archive-grid, .stats-row { grid-template-columns: 1fr; }
+      .wrap { width: min(var(--max), calc(100% - 24px)); }
+      .hero-grid, .archive-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
       .masthead, .header-side, .stat-card, .issue-card { padding: 16px; }
       .topbar-inner { min-height: 58px; }
     }
   </style>
 </head>
 <body>
+
   <div class="topbar">
     <div class="wrap topbar-inner">
       <div class="brand-mini">
         <span class="brand-dot" aria-hidden="true"></span>
         <strong>The Dungeon Economy</strong>
       </div>
-      <button class="toggle" id="themeToggle" type="button" aria-label="Toggle light and dark mode">Light mode</button>
+      <button class="toggle" id="themeToggle" type="button">Light mode</button>
     </div>
   </div>
 
   <header class="hero">
-    <div class="wrap hero-grid">
-      <div class="masthead">
-        <div class="kicker">Issue Archive</div>
-        <h1>The Dungeon Economy</h1>
-        <p class="tagline">A weekly brief on D&amp;D, publishing, platforms, and market signals.</p>
-        <div class="issue-row">
-          <span class="chip">Weekly</span>
-          <span class="chip">D&amp;D · Publishing · Platforms · Demand</span>
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="masthead card-surface">
+          <div class="kicker">Issue Archive</div>
+          <h1>The Dungeon Economy</h1>
+          <p class="tagline">A weekly brief on D&amp;D, publishing, platforms, and market signals.</p>
+          <div class="issue-row">
+            <span class="chip">Weekly</span>
+            <span class="chip">D&amp;D · Publishing · Platforms · Demand</span>
+          </div>
         </div>
+        <aside class="header-side card-surface">
+          <div>
+            <h2>About this publication</h2>
+            <p class="header-note">Each issue tracks what changed in D&amp;D and the wider tabletop market, separates confirmed fact from interpretation, and surfaces the signals that matter for players, DMs, and creators.</p>
+          </div>
+          <div class="header-meta">Where D&amp;D meets product, platform, and demand.</div>
+        </aside>
       </div>
-      <aside class="header-side">
-        <div>
-          <h2>About this publication</h2>
-          <p class="header-note">Each issue tracks what changed in D&amp;D and the wider tabletop market, separates confirmed fact from interpretation, and surfaces the commercial and community signals that matter for players, DMs, and creators.</p>
-        </div>
-        <div class="header-meta">Where D&amp;D meets product, platform, and demand.</div>
-      </aside>
-    </div>
 
-    <div class="wrap stats-row">
-      <div class="stat-card">
-        <div class="stat-label">Issues published</div>
-        <div class="stat-value">1</div>
-        <div class="stat-sub">and counting</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Focus</div>
-        <div class="stat-value sm">D&amp;D + Industry</div>
-        <div class="stat-sub">WotC-first, market-wide</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Cadence</div>
-        <div class="stat-value sm">Weekly</div>
-        <div class="stat-sub">Published every Friday</div>
+      <div class="stats-row">
+        <div class="stat-card card-surface">
+          <div class="stat-label">Issues published</div>
+          <div class="stat-value">1</div>
+          <div class="stat-sub">and counting</div>
+        </div>
+        <div class="stat-card card-surface">
+          <div class="stat-label">Focus</div>
+          <div class="stat-value sm">D&amp;D + Industry</div>
+          <div class="stat-sub">WotC-first, market-wide</div>
+        </div>
+        <div class="stat-card card-surface">
+          <div class="stat-label">Cadence</div>
+          <div class="stat-value sm">Weekly</div>
+          <div class="stat-sub">Published every Friday</div>
+        </div>
       </div>
     </div>
   </header>
 
-  <main class="wrap">
-    <div class="section-head">
-      <div><h2>All Issues</h2></div>
-      <p>Most recent first.</p>
-    </div>
-    <div class="archive-grid">
-      
+  <main>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>All Issues</h2>
+        <p>Most recent first.</p>
+      </div>
+      <div class="archive-grid">
+        
       <a href="reports/2026-04-05.html" class="issue-card latest">
         <div class="card-top">
           <span class="issue-num">Issue #1</span>
@@ -210,11 +228,12 @@
         <div class="card-preview">A weekly brief on D&amp;D, publishing, platforms, and market signals.…</div>
         <div class="card-arrow">Read issue →</div>
       </a>
+      </div>
     </div>
   </main>
 
   <footer>
-    <div class="wrap footer-grid">
+    <div class="wrap footer-inner">
       <div>
         <strong>The Dungeon Economy</strong>
         <div>Weekly intelligence brief</div>
