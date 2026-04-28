@@ -1,599 +1,454 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Dungeon Economy — Issue #2</title>
-  <style>
-    :root {
-      --bg: #f7f3ea;
-      --surface: #fffaf0;
-      --surface-2: #f0e5d2;
-      --text: #241b14;
-      --muted: #6f6257;
-      --line: #d9c8ad;
-      --accent: #8d2f21;
-      --accent-2: #c7822d;
-      --chip: #ead7bb;
-      --shadow: 0 18px 45px rgba(50, 35, 20, 0.10);
-      --link: #7a291d;
-      --good: #2f6f4e;
-      --warn: #9a641c;
-      --low: #6f6257;
-    }
-
-    html[data-theme="dark"] {
-      --bg: #15120f;
-      --surface: #211b16;
-      --surface-2: #2b231d;
-      --text: #f5ead7;
-      --muted: #c0ad96;
-      --line: #46392e;
-      --accent: #e36b56;
-      --accent-2: #e0a44a;
-      --chip: #382a20;
-      --shadow: 0 18px 45px rgba(0, 0, 0, 0.30);
-      --link: #f0a08d;
-      --good: #7fd19d;
-      --warn: #efbd64;
-      --low: #c0ad96;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, rgba(199,130,45,0.16), transparent 34rem), var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
-    a:hover { text-decoration-thickness: 2px; }
-
-    .wrap { max-width: 1120px; margin: 0 auto; padding: 28px 20px 72px; }
-
-    header.hero {
-      position: relative;
-      border: 1px solid var(--line);
-      background: linear-gradient(135deg, var(--surface), var(--surface-2));
-      border-radius: 28px;
-      padding: 36px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .hero:after {
-      content: "";
-      position: absolute;
-      inset: auto -80px -120px auto;
-      width: 320px;
-      height: 320px;
-      border-radius: 999px;
-      background: rgba(141,47,33,0.12);
-      pointer-events: none;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: flex-start;
-      margin-bottom: 26px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .kicker {
-      font-size: 0.82rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--accent);
-      font-weight: 800;
-    }
-
-    .toggle {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--text);
-      padding: 9px 13px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-weight: 700;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    }
-
-    h1 {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(2.4rem, 6vw, 5.2rem);
-      line-height: 0.95;
-      margin: 0 0 14px;
-      letter-spacing: -0.055em;
-      position: relative;
-      z-index: 1;
-    }
-
-    .tagline {
-      font-size: clamp(1rem, 2vw, 1.24rem);
-      color: var(--muted);
-      max-width: 760px;
-      margin: 0 0 26px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .meta {
-      background: rgba(255,255,255,0.30);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px 16px;
-    }
-
-    html[data-theme="dark"] .meta { background: rgba(0,0,0,0.12); }
-    .meta b { display:block; font-size: 0.74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-    .meta span { font-weight: 800; }
-
-    nav.toc {
-      margin: 24px 0 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    nav.toc a {
-      display: inline-flex;
-      align-items: center;
-      background: var(--chip);
-      color: var(--text);
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 8px 12px;
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 700;
-    }
-
-    main { margin-top: 30px; }
-    section {
-      margin: 28px 0;
-      padding: 28px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      box-shadow: 0 10px 25px rgba(50,35,20,0.05);
-    }
-
-    h2 {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.65rem, 3vw, 2.4rem);
-      margin: 0 0 16px;
-      letter-spacing: -0.03em;
-    }
-
-    h3 { margin: 0 0 8px; font-size: 1.18rem; line-height: 1.3; }
-    p { margin: 0 0 14px; }
-    ul { margin: 10px 0 0 1.1rem; padding: 0; }
-    li { margin-bottom: 8px; }
-
-    .lead { font-size: 1.08rem; color: var(--muted); max-width: 880px; }
-
-    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-
-    .card {
-      background: linear-gradient(180deg, var(--surface), rgba(255,255,255,0.05));
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 20px;
-    }
-
-    .item {
-      border-top: 1px solid var(--line);
-      padding-top: 20px;
-      margin-top: 20px;
-    }
-
-    .item:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
-
-    .label-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 14px; }
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid var(--line);
-      background: var(--chip);
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .high { color: var(--good); }
-    .medium { color: var(--warn); }
-    .low { color: var(--low); }
-
-    .source {
-      margin-top: 14px;
-      padding: 12px;
-      background: var(--surface-2);
-      border: 1px dashed var(--line);
-      border-radius: 14px;
-      font-size: 0.86rem;
-      color: var(--muted);
-      overflow-wrap: anywhere;
-    }
-    .source b { color: var(--text); }
-    .source a { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.82rem; }
-
-    .callout {
-      border-left: 5px solid var(--accent);
-      padding: 16px 18px;
-      background: var(--surface-2);
-      border-radius: 16px;
-      margin: 16px 0;
-    }
-
-    .brief-list { display: grid; gap: 12px; }
-    .brief-list .row {
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 16px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--surface-2);
-    }
-    .row b { color: var(--accent); }
-
-    footer {
-      margin-top: 36px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      text-align: center;
-    }
-
-    @media (max-width: 820px) {
-      .meta-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .topbar { flex-direction: column; }
-      header.hero { padding: 26px; }
-      section { padding: 22px; }
-      .brief-list .row { grid-template-columns: 1fr; }
-    }
-
-    @media print {
-      .toggle, nav.toc { display: none; }
-      body { background: white; }
-      section, header.hero { box-shadow: none; break-inside: avoid; }
-      a { color: #000; }
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>The Dungeon Economy — Issue #2 — April 28, 2026</title>
+<style>
+:root{--bg:#0c0f14;--bg-elev:#121722;--bg-soft:#151b26;--card:rgba(255,255,255,0.04);--line:rgba(255,255,255,0.10);--text:#edf2f8;--muted:#aeb8ca;--soft:#8e98ab;--accent:#8ab4ff;--accent-2:#93f0c8;--warn:#ffcf78;--danger:#f87171;--shadow:0 18px 44px rgba(0,0,0,0.28);--radius:14px;--max:1220px;}
+html[data-theme="light"]{--bg:#f4eee4;--bg-elev:#fbf7ef;--bg-soft:#ede7d8;--card:rgba(74,56,28,0.05);--line:rgba(74,56,28,0.12);--text:#211a14;--muted:#605648;--soft:#7d7163;--accent:#245dc5;--accent-2:#0a8b69;--warn:#9a6700;--danger:#b91c1c;--shadow:0 14px 34px rgba(82,59,28,0.10);}
+*{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+body{color:var(--text);background:radial-gradient(circle at top left,rgba(138,180,255,0.11),transparent 28%),radial-gradient(circle at top right,rgba(147,240,200,0.08),transparent 22%),var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:var(--accent);text-decoration:none;}a:hover{text-decoration:underline;}
+.wrap{width:min(var(--max),calc(100% - 48px));margin:0 auto;}
+.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 85%,transparent);border-bottom:1px solid var(--line);}
+.topbar-inner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);transition:color .15s;}
+.brand-link:hover{color:var(--accent);text-decoration:none;}
+.brand-dot{width:11px;height:11px;border-radius:999px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 0 0 5px rgba(138,180,255,0.10);}
+.brand-link strong{font-size:0.95rem;letter-spacing:0.01em;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.toggle{border:1px solid var(--line);background:var(--bg-elev);color:var(--text);padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit;font-size:0.82rem;font-weight:600;transition:transform .15s,border-color .15s;}
+.toggle:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 40%,var(--line));}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg-elev);color:var(--muted);font-size:0.79rem;font-weight:600;text-decoration:none;transition:border-color .15s,color .15s;white-space:nowrap;}
+.nav-btn:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line));color:var(--accent);text-decoration:none;}
+.nav-btn.disabled{opacity:0.3;pointer-events:none;}
+.nav-divider{width:1px;height:18px;background:var(--line);}
+.section-nav{position:sticky;top:64px;z-index:40;width:100%;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+.section-nav::-webkit-scrollbar{display:none;}
+.nav-inner{display:flex;align-items:center;gap:2px;height:48px;overflow-x:auto;}
+.nav-item{display:flex;align-items:center;padding:5px 14px;border-radius:999px;font-size:0.79rem;font-weight:600;color:var(--soft);text-decoration:none;white-space:nowrap;transition:color .15s,background .15s;border:1px solid transparent;}
+.nav-item:hover{color:var(--text);background:var(--card);text-decoration:none;}
+.nav-item.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);border-color:color-mix(in srgb,var(--accent) 28%,transparent);}
+.panel{padding:72px 0;}.panel-soft{background:var(--bg-soft);}
+.card{background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--soft);margin-bottom:8px;}
+.eyebrow::before{content:'';width:16px;height:1px;background:var(--accent);}
+.section-title{font-size:clamp(1.3rem,2.5vw,1.9rem);font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:24px;}
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:0.66rem;font-weight:800;letter-spacing:0.04em;white-space:nowrap;}
+.pill-confirmed{background:rgba(147,240,200,0.15);color:#93f0c8;border:1px solid rgba(147,240,200,0.3);}
+.pill-reported{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--line);}
+.pill-community{background:rgba(138,180,255,0.15);color:#8ab4ff;border:1px solid rgba(138,180,255,0.3);}
+.pill-medium{background:rgba(255,207,120,0.15);color:#ffcf78;border:1px solid rgba(255,207,120,0.3);}
+.pill-high{background:rgba(147,240,200,0.15);color:#93f0c8;border:1px solid rgba(147,240,200,0.3);}
+/* COVER */
+.cover-panel{padding:80px 0 64px;}
+.cover-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--soft);}
+.cover-kicker::before{content:'';width:18px;height:1px;background:var(--accent);}
+.cover-question{font-size:clamp(1.7rem,4.2vw,3rem);font-weight:800;letter-spacing:-0.04em;line-height:1.12;max-width:820px;margin-bottom:24px;}
+.cover-tagline{font-size:1rem;color:var(--muted);margin-bottom:32px;max-width:540px;}
+.cover-date{font-size:0.82rem;color:var(--soft);}
+/* CONTENT */
+.content-section{margin-bottom:64px;}
+.content-section h2{font-size:clamp(1.4rem,2.8vw,2rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:20px;margin-top:48px;}
+.content-section h3{font-size:1.2rem;font-weight:700;margin-bottom:12px;margin-top:28px;}
+.content-section p{margin-bottom:16px;line-height:1.7;}
+.content-section em{font-style:italic;color:var(--text);}
+.content-section strong{font-weight:700;}
+.content-section ul,.content-section ol{margin-bottom:16px;padding-left:24px;}
+.content-section li{margin-bottom:8px;line-height:1.7;}
+.article-item{background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.article-item h3{font-size:1.2rem;font-weight:700;margin-bottom:12px;margin-top:0;}
+.label-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.source{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:0.82rem;color:var(--soft);}
+.source a{color:var(--soft);word-break:break-all;}
+.source a:hover{color:var(--accent);}
+.brief-list{display:flex;flex-direction:column;gap:16px;}
+.brief-list .row{background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+.brief-list .row b{display:block;font-weight:700;margin-bottom:6px;color:var(--text);}
+.brief-list .row span{color:var(--muted);line-height:1.6;}
+.lead{font-size:1.05rem;line-height:1.7;color:var(--muted);margin-bottom:24px;}
+footer{border-top:1px solid var(--line);padding:48px 0;margin-top:72px;text-align:center;color:var(--soft);font-size:0.88rem;}
+.footer-inner{display:flex;flex-direction:column;gap:8px;align-items:center;}
+.footer-inner strong{color:var(--text);}
+@media(max-width:768px){
+.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+.topbar-inner{flex-direction:column;align-items:flex-start;}
+.nav-inner{overflow-x:auto;}
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header class="hero">
-      <div class="topbar">
-        <div>
-          <div class="kicker">The Dungeon Economy</div>
-          <p class="tagline">Where D&D meets product, platform, and demand.</p>
-        </div>
-        <button class="toggle" id="themeToggle" type="button" aria-label="Toggle light and dark mode">Toggle dark mode</button>
-      </div>
-      <h1>Issue #2</h1>
-      <p class="tagline">A weekly brief on D&D, publishing, platforms, and market signals — blending verified developments, market observation, and creator-facing analysis.</p>
-      <div class="meta-grid">
-        <div class="meta"><b>Issue Date</b><span>28 Apr 2026</span></div>
-        <div class="meta"><b>Coverage Window</b><span>7–27 Apr 2026</span></div>
-        <div class="meta"><b>Focus</b><span>D&D + TTRPG market</span></div>
-        <div class="meta"><b>Method</b><span>Source-grounded brief</span></div>
-      </div>
-    </header>
 
-    <nav class="toc" aria-label="Table of contents">
-      <a href="#summary">Executive Summary</a>
-      <a href="#verified">Verified Developments</a>
-      <a href="#sentiment">Community Sentiment</a>
-      <a href="#signals">Market Signals</a>
-      <a href="#players">Players</a>
-      <a href="#dms">DMs</a>
-      <a href="#creators">Creators</a>
-      <a href="#unknowns">Unknowns</a>
-      <a href="#watchlist">Watchlist</a>
-      <a href="#sources">Sources</a>
-    </nav>
-
-    <main>
-      <section id="summary">
-        <h2>1. Executive Summary</h2>
-        <p class="lead">This week’s D&D economy story is not one isolated announcement. It is a pattern: Wizards of the Coast is pushing D&D further into a connected media-and-platform loop, while the wider TTRPG market continues to prove that crowdfunding, digital tools, and non-D&D systems are still very much alive.</p>
-        <div class="grid-3">
-          <div class="card">
-            <h3>Official D&D becomes a content funnel</h3>
-            <p>Wizards launched <em>Dungeon Masters</em>, an official D&D actual play series debuting April 22, built around Ravenloft, D&D Beyond play-along content, and a cast with strong fantasy/gaming recognition.</p>
-          </div>
-          <div class="card">
-            <h3>Platform work is mostly infrastructure</h3>
-            <p>D&D Beyond, Roll20, Demiplane, Foundry, The Forge, and Alchemy all showed movement. Most updates are not headline-grabbing; they reduce friction from purchase to prep to play.</p>
-          </div>
-          <div class="card">
-            <h3>Crowdfunding remains broad</h3>
-            <p>Q1 2026 TTRPG crowdfunding analysis suggests growth among $100k+ campaigns, but the winners are not only 5E projects. Concept, audience fit, and platform readiness matter.</p>
-          </div>
-        </div>
-        <div class="callout">
-          <strong>Editorial read:</strong> D&D’s official strategy is becoming more like a media ecosystem than a book line. Small creators should not copy the budget; copy the structure: audience hook, playable sample, clear conversion path, and platform-friendly delivery.
-        </div>
-      </section>
-
-      <section id="verified">
-        <h2>2. Verified Developments</h2>
-
-        <article class="item">
-          <h3>Wizards announced <em>Dungeon Masters</em>, an official D&D actual play series</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact + analysis</span><span class="pill">Affects: Players, DMs, creators, platforms</span></div>
-          <p><strong>What happened:</strong> Wizards of the Coast announced <em>Dungeon Masters</em>, an official Dungeons & Dragons actual play series debuting April 22, 2026 on YouTube with a two-episode premiere. The campaign stars Jasmine Bhullar as Dungeon Master, with Mayanna Berrin, Christian Navarro, Neil Newbon, and Devora Wilde as players.</p>
-          <p><strong>Why it matters:</strong> This is not just entertainment. It is official D&D using actual play as a product funnel: watch the story, meet the setting, receive play-along material, and move toward D&D Beyond and the upcoming Ravenloft release.</p>
-          <div class="source"><b>Source:</b> Hasbro/Wizards press release — <a href="https://investor.hasbro.com/news-releases/news-release-details/wizards-coast-announces-dungeon-masters-official-dungeons">https://investor.hasbro.com/news-releases/news-release-details/wizards-coast-announces-dungeon-masters-official-dungeons</a></div>
-        </article>
-
-        <article class="item">
-          <h3>D&D Beyond published <em>Unearthed Arcana: Villainous Options 2</em></h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact + analysis</span><span class="pill">Affects: Players, DMs, designers</span></div>
-          <p><strong>What happened:</strong> D&D Beyond released designer notes for <em>Villainous Options 2</em>, featuring three playtest subclasses: Path of Lament Barbarian, Warrior of Venom Monk, and Primordial Patron Warlock. The survey opens April 30.</p>
-          <p><strong>Why it matters:</strong> Wizards is continuing to test darker, villain-coded player options. For creators, the important signal is that flavor-forward subclass design remains a high-attention category, but public response will still hinge on class fantasy and mechanical fit.</p>
-          <div class="source"><b>Source:</b> D&D Beyond — <a href="https://www.dndbeyond.com/posts/2161-designer-insights-from-unearthed-arcana-villainous">https://www.dndbeyond.com/posts/2161-designer-insights-from-unearthed-arcana-villainous</a></div>
-        </article>
-
-        <article class="item">
-          <h3>D&D Beyond Maps received performance and reliability updates</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact</span><span class="pill">Affects: DMs, players, VTT competitors</span></div>
-          <p><strong>What happened:</strong> The April 27 D&D Beyond changelog lists Maps improvements for object pasting, Game Log error reduction, a claimed 20x speed improvement for Game Log queries, and a Firefox performance fix.</p>
-          <p><strong>Why it matters:</strong> D&D Beyond Maps is still earning trust as a table-ready VTT. Performance and reliability are not glamour features, but they are the features that decide whether DMs actually use a platform during live play.</p>
-          <div class="source"><b>Source:</b> D&D Beyond changelog — <a href="https://www.dndbeyond.com/changelog">https://www.dndbeyond.com/changelog</a></div>
-        </article>
-
-        <article class="item">
-          <h3>D&D Beyond continues its partnered-content push</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact + analysis</span><span class="pill">Affects: Creators, publishers, DMs</span></div>
-          <p><strong>What happened:</strong> D&D Beyond highlighted <em>Dr Dhrolin’s Dictionary of Dinosaurs</em> and listed it in the Q2 partnered-content schedule as a 5.5E release by Palaeo Games.</p>
-          <p><strong>Why it matters:</strong> D&D Beyond’s marketplace function is increasingly important for third-party publishers. Being digitally available inside the official ecosystem changes a product’s discoverability and usefulness at the table.</p>
-          <div class="source"><b>Sources:</b> D&D Beyond posts — <a href="https://www.dndbeyond.com/posts">https://www.dndbeyond.com/posts</a><br>D&D Beyond partnered schedule — <a href="https://www.dndbeyond.com/posts/2139-q2-2026-partnered-content-release-schedule">https://www.dndbeyond.com/posts/2139-q2-2026-partnered-content-release-schedule</a></div>
-        </article>
-
-        <article class="item">
-          <h3>Foundry VTT released Version 14 Stable 2</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact</span><span class="pill">Affects: DMs, module developers, toolmakers</span></div>
-          <p><strong>What happened:</strong> Foundry VTT released Version 14.360, described as Version 14 Stable 2, on April 9, 2026.</p>
-          <p><strong>Why it matters:</strong> Foundry’s audience depends heavily on module ecosystems and advanced customization. Stable releases and API polish matter because they determine when real campaigns can safely move forward.</p>
-          <div class="source"><b>Source:</b> Foundry VTT release notes — <a href="https://foundryvtt.com/releases/14.360">https://foundryvtt.com/releases/14.360</a></div>
-        </article>
-      </section>
-
-      <section id="sentiment">
-        <h2>3. Community Sentiment</h2>
-        <p class="lead">Community evidence this week is useful, but should not be treated as a representative survey. Reddit threads show engaged reactions from plugged-in hobbyists, not the entire market.</p>
-
-        <article class="item">
-          <h3><em>Dungeon Masters</em> reaction: cautiously positive, with reach questions</h3>
-          <div class="label-row"><span class="pill medium">Confidence: Medium</span><span class="pill">Type: Community sentiment + analysis</span></div>
-          <p>Reddit discussion around the first episodes shows praise for production quality, table chemistry, and the feeling of a polished home game. Another thread raised concerns that early view counts looked low compared with the trailer’s reach.</p>
-          <p><strong>Read:</strong> The show may be liked by engaged D&D fans, but the open question is whether an official actual play can break through a crowded AP market and convert viewers into D&D Beyond users or Ravenloft buyers.</p>
-          <div class="source"><b>Sources:</b> Reddit r/onednd — <a href="https://www.reddit.com/r/onednd/comments/1st9ps0/dungeon_masters_episodes_1_2_official_dd_actual/">https://www.reddit.com/r/onednd/comments/1st9ps0/dungeon_masters_episodes_1_2_official_dd_actual/</a><br>Reddit r/DnD — <a href="https://www.reddit.com/r/DnD/comments/1stom5p/dungeon_masters_new_dnd_live_action/">https://www.reddit.com/r/DnD/comments/1stom5p/dungeon_masters_new_dnd_live_action/</a></div>
-        </article>
-
-        <article class="item">
-          <h3><em>Villainous Options 2</em>: strong concepts, class-fit and balance concerns</h3>
-          <div class="label-row"><span class="pill medium">Confidence: Medium</span><span class="pill">Type: Community sentiment</span></div>
-          <p>Discussion around the UA shows enthusiasm for the Barbarian concept and the general villainous theme, while some commenters questioned the Monk’s balance and whether the elemental Warlock concept would fit better as a Sorcerer.</p>
-          <p><strong>Read:</strong> Dark fantasy player options still attract attention, but the D&D audience is sensitive to whether mechanics support the fantasy cleanly.</p>
-          <div class="source"><b>Sources:</b> Reddit r/dndnext — <a href="https://www.reddit.com/r/dndnext/comments/1strcna/unearthed_arcana_villainous_options_2_barbarian/">https://www.reddit.com/r/dndnext/comments/1strcna/unearthed_arcana_villainous_options_2_barbarian/</a><br>Reddit r/onednd — <a href="https://www.reddit.com/r/onednd/comments/1stq0k8/villainous_options_2_ua/">https://www.reddit.com/r/onednd/comments/1stq0k8/villainous_options_2_ua/</a></div>
-        </article>
-
-        <article class="item">
-          <h3>D&D Beyond performance remains a trust issue</h3>
-          <div class="label-row"><span class="pill medium">Confidence: Medium</span><span class="pill">Type: Community sentiment + platform response</span></div>
-          <p>A D&D Beyond changelog discussion included user reports of major character sheet slowdown, with a WotC staff account responding that a temporary fix was being restored.</p>
-          <p><strong>Read:</strong> Even when platform roadmaps look healthy, live-table trust is fragile. For DMs, a slow sheet or laggy VTT is not an inconvenience; it can break the flow of a session.</p>
-          <div class="source"><b>Source:</b> Reddit r/dndbeyond — <a href="https://www.reddit.com/r/dndbeyond/comments/1squxit/whats_new_on_ddb_changelog_4202026/">https://www.reddit.com/r/dndbeyond/comments/1squxit/whats_new_on_ddb_changelog_4202026/</a></div>
-        </article>
-      </section>
-
-      <section id="signals">
-        <h2>4. Market and Platform Signals</h2>
-
-        <article class="item">
-          <h3>Hasbro reported strong preliminary Q1 results after unauthorized network access</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact + analysis</span><span class="pill">Affects: Retailers, publishers, platforms, creators</span></div>
-          <p><strong>What happened:</strong> Hasbro announced preliminary Q1 2026 revenue of roughly $970M–$985M, delayed full results to May 20, and said unauthorized network access had been contained. Hasbro said the incident did not affect Q1 financial results, while some Q2 Consumer Products operations may see order-processing, shipping, and invoicing delays.</p>
-          <p><strong>Why it matters:</strong> This is Hasbro-wide rather than D&D-specific, but creators and retailers should watch operational reliability around Wizards/Hasbro. Digital and physical fulfillment confidence matters when the official ecosystem is trying to pull players into more connected experiences.</p>
-          <div class="source"><b>Sources:</b> Hasbro investor release — <a href="https://investor.hasbro.com/news-releases/news-release-details/hasbro-announces-preliminary-first-quarter-2026-financial">https://investor.hasbro.com/news-releases/news-release-details/hasbro-announces-preliminary-first-quarter-2026-financial</a><br>Reuters — <a href="https://www.reuters.com/business/retail-consumer/hasbro-delays-quarterly-results-after-cybersecurity-incident-2026-04-23/">https://www.reuters.com/business/retail-consumer/hasbro-delays-quarterly-results-after-cybersecurity-incident-2026-04-23/</a></div>
-        </article>
-
-        <article class="item">
-          <h3>MTG Arena developers moved to unionize with CWA</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact + analysis</span><span class="pill">Affects: Wizards, digital teams, platforms</span></div>
-          <p><strong>What happened:</strong> The Communications Workers of America announced that a supermajority of workers behind <em>Magic: The Gathering Arena</em> are seeking voluntary recognition by Wizards/Hasbro.</p>
-          <p><strong>Why it matters:</strong> This is not a D&D product update, but it is a Wizards digital-development story. D&D’s long-term strategy depends on digital tools, and labor conditions inside Wizards’ digital teams can affect retention, product velocity, and community trust.</p>
-          <div class="source"><b>Sources:</b> CWA — <a href="https://cwa-union.org/news/releases/wizards-coast-developers-form-union-cwa">https://cwa-union.org/news/releases/wizards-coast-developers-form-union-cwa</a><br>The Guardian — <a href="https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization">https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization</a></div>
-        </article>
-
-        <article class="item">
-          <h3>Roll20 and Demiplane continued integration and system-support work</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact + analysis</span><span class="pill">Affects: Players, GMs, toolmakers</span></div>
-          <p><strong>What happened:</strong> Roll20’s April changelog includes Traveller Demiplane character linking for Traveller 2e games. Demiplane’s April posts include Traveller Campaigns, Daggerheart bug fixes, and <em>Daggerheart: Hope & Fear</em> pre-order support.</p>
-          <p><strong>Why it matters:</strong> Roll20/Demiplane is building toward a cross-platform content-and-character layer. The strategic signal is bigger than Traveller: major TTRPGs increasingly need digital campaign, sheet, and rules support to feel complete.</p>
-          <div class="source"><b>Sources:</b> Roll20 changelog — <a href="https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log">https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log</a><br>Demiplane blog — <a href="https://www.demiplane.com/blog">https://www.demiplane.com/blog</a></div>
-        </article>
-
-        <article class="item">
-          <h3>Alchemy launched <em>Blades in the Dark</em> support</h3>
-          <div class="label-row"><span class="pill high">Confidence: High</span><span class="pill">Type: Confirmed fact + analysis</span><span class="pill">Affects: VTTs, indie publishers, GMs</span></div>
-          <p><strong>What happened:</strong> Alchemy RPG released support for <em>Blades in the Dark</em>, with Rascal describing a digital rulebook, guided character creator, automated sheets, trackers, faction tools, and scene-support features.</p>
-          <p><strong>Why it matters:</strong> Alchemy is competing less on grid-first tactical depth and more on atmosphere, guided onboarding, and system-specific presentation. This matters for indie systems that want premium digital treatment without becoming D&D clones.</p>
-          <div class="source"><b>Sources:</b> Alchemy — <a href="https://alchemyrpg.com/blades-in-the-dark">https://alchemyrpg.com/blades-in-the-dark</a><br>Rascal — <a href="https://www.rascal.news/blades-in-the-dark-alchemy-rpg-vtt/">https://www.rascal.news/blades-in-the-dark-alchemy-rpg-vtt/</a></div>
-        </article>
-
-        <article class="item">
-          <h3>Traveller 5E shows the commercial power and risk of 5E conversion</h3>
-          <div class="label-row"><span class="pill high">Confidence: High for campaign data</span><span class="pill medium">Confidence: Medium for sentiment</span><span class="pill">Type: Market signal + analysis</span></div>
-          <p><strong>What happened:</strong> The <em>Traveller 5E</em> BackerKit campaign by World’s Largest RPGs had raised over $590K from more than 1,600 backers during this research pass, against a listed goal of $1,977.</p>
-          <p><strong>Why it matters:</strong> The campaign shows that 5E remains a powerful adapter layer even outside fantasy. The risk is positioning: legacy-system fans may view a 5E conversion as useful, unnecessary, or opportunistic depending on how clearly the project explains its creative purpose.</p>
-          <div class="source"><b>Source:</b> BackerKit — <a href="https://www.backerkit.com/c/projects/world-s-largest-rpgs/traveller-5e">https://www.backerkit.com/c/projects/world-s-largest-rpgs/traveller-5e</a></div>
-        </article>
-
-        <article class="item">
-          <h3>Q1 2026 TTRPG crowdfunding looked healthy, but not purely 5E-driven</h3>
-          <div class="label-row"><span class="pill medium">Confidence: Medium-high</span><span class="pill">Type: Industry analysis</span><span class="pill">Affects: Creators, publishers, campaign strategists</span></div>
-          <p><strong>What happened:</strong> TTRPG Insider reported that Q1 2026 TTRPG campaigns crossing $100K generated an estimated $8.06M, about 25% more than Q1 2025, while noting that only 6 of 21 featured games used Fifth Edition mechanics.</p>
-          <p><strong>Why it matters:</strong> The creator lesson is blunt: 5E compatibility is not the only growth path. Strong concept, audience fit, visual identity, actual-play adjacency, and a clear use case can all carry commercial weight.</p>
-          <div class="source"><b>Source:</b> TTRPG Insider — <a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy">https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy</a></div>
-        </article>
-
-        <article class="item">
-          <h3><em>Dungeon Crawler Carl</em> enters tabletop crowdfunding</h3>
-          <div class="label-row"><span class="pill medium">Confidence: Medium-high</span><span class="pill">Type: Confirmed campaign + analysis</span><span class="pill">Affects: Publishers, designers, retailers</span></div>
-          <p><strong>What happened:</strong> Renegade Game Studios launched a BackerKit campaign for <em>Dungeon Crawler Carl: Role-Playing Game & Unstoppable</em>, pairing a licensed RPG with a solo/co-op card-crafting game.</p>
-          <p><strong>Why it matters:</strong> LitRPG and progression-fantasy audiences are moving closer to tabletop. For D&D creators, the signal is that dungeon progression, loot loops, character builds, and “game-like fiction” are increasingly overlapping.</p>
-          <div class="source"><b>Sources:</b> Renegade Game Studios — <a href="https://renegadegamestudios.com/blog/renegade-game-studios-launches-dungeon-crawler-carl-tabletop-games-on-backerkit/">https://renegadegamestudios.com/blog/renegade-game-studios-launches-dungeon-crawler-carl-tabletop-games-on-backerkit/</a><br>BackerKit — <a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable">https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable</a></div>
-        </article>
-      </section>
-
-      <section id="players">
-        <h2>5. Implications for Players</h2>
-        <div class="brief-list">
-          <div class="row"><b>More guided entry points</b><span>Official actual play plus D&D Beyond play-along material gives newer players a smoother route from watching to trying the game.</span></div>
-          <div class="row"><b>More experimental options</b><span>UA remains a place for bold player concepts, but players should treat <em>Villainous Options 2</em> as testing material, not guaranteed table standard.</span></div>
-          <div class="row"><b>Platform reliability matters</b><span>Players relying on D&D Beyond sheets, dice, and Maps should test their setup before play. Convenience only helps when it is stable.</span></div>
-        </div>
-      </section>
-
-      <section id="dms">
-        <h2>6. Implications for DMs</h2>
-        <div class="brief-list">
-          <div class="row"><b>Ravenloft is heating up</b><span>Wizards is aligning actual play, premium events, D&D Beyond content, and a June release around Ravenloft. Horror and gothic fantasy tables should watch this closely.</span></div>
-          <div class="row"><b>Do not update blindly</b><span>Foundry V14 may be stable, but live campaign stacks depend on system, module, and hosting compatibility. Stability beats novelty.</span></div>
-          <div class="row"><b>Prep for digital failure</b><span>If your session depends on D&D Beyond or another VTT, keep a backup plan: exported sheets, offline notes, or a simplified map workflow.</span></div>
-        </div>
-      </section>
-
-      <section id="creators">
-        <h2>7. Implications for D&D / TTRPG Content Creators</h2>
-        <p class="lead">The clearest creator takeaway this week: products now compete on usefulness, not just imagination. A great PDF is still valuable, but a great PDF with digital hooks, playable samples, and a clear audience pathway is stronger.</p>
-        <div class="grid-2">
-          <div class="card">
-            <h3>Copy the funnel, not the budget</h3>
-            <p><em>Dungeon Masters</em> shows the official version of a modern product funnel: entertainment, setting interest, free playable material, then purchase path. Small creators can do this with a short scene, one free encounter, and a clean product link.</p>
-          </div>
-          <div class="card">
-            <h3>Platform fit is now a feature</h3>
-            <p>D&D Beyond, Demiplane, Roll20, Alchemy, and Foundry all point toward the same future: buyers increasingly expect content to work where they play.</p>
-          </div>
-          <div class="card">
-            <h3>5E remains powerful, not mandatory</h3>
-            <p>Traveller 5E shows the commercial power of 5E conversion. TTRPG Insider’s Q1 analysis shows that non-5E projects can also win. The better question is: which audience are you built to serve?</p>
-          </div>
-          <div class="card">
-            <h3>Genre adjacency is opportunity</h3>
-            <p><em>Dungeon Crawler Carl</em> suggests that LitRPG, progression fantasy, and dungeon-core audiences are increasingly relevant to tabletop publishers.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="unknowns">
-        <h2>8. Critical Unknowns</h2>
-        <ul>
-          <li><strong>Will <em>Dungeon Masters</em> convert?</strong> Early reaction is not the KPI. The key question is whether viewers become D&D Beyond users, play-along downloaders, and Ravenloft buyers.</li>
-          <li><strong>Can D&D Beyond Maps become trusted for live campaigns?</strong> The changelog is promising, but trust will depend on repeated smooth sessions, not single update notes.</li>
-          <li><strong>How will Wizards/Hasbro respond to the union effort?</strong> The CWA announcement makes this a near-term business and labor story.</li>
-          <li><strong>Will Hasbro’s network incident have D&D-specific fallout?</strong> No confirmed D&D-specific disruption was found in this window. Keep it on watch, especially for distribution and licensed product timing.</li>
-          <li><strong>Is crowdfunding growth broad or campaign-clustered?</strong> Q1 looks positive, but the category needs more than one quarter of data before calling it a durable expansion.</li>
-        </ul>
-      </section>
-
-      <section id="watchlist">
-        <h2>9. Recommended Watchlist for Next Week</h2>
-        <div class="brief-list">
-          <div class="row"><b>Dungeon Masters</b><span>Track episode-to-episode viewership, comments, and whether play-along content becomes a meaningful engagement loop.</span></div>
-          <div class="row"><b>Villainous Options 2 survey</b><span>Survey opens April 30. Watch for feedback around Monk balance, Warlock identity, and Barbarian reception.</span></div>
-          <div class="row"><b>Wizards union response</b><span>Watch whether Hasbro/Wizards voluntarily recognizes the union or moves toward a formal election process.</span></div>
-          <div class="row"><b>D&D Beyond performance</b><span>Track whether Game Log, Maps, Firefox, and character sheet complaints decrease after recent fixes.</span></div>
-          <div class="row"><b>Traveller 5E funding curve</b><span>Campaign ends May 15. Useful benchmark for 5E conversion demand outside fantasy.</span></div>
-          <div class="row"><b>Foundry V14 migration</b><span>Watch module compatibility and hosted-service guidance before recommending live campaign upgrades.</span></div>
-          <div class="row"><b>Ravenloft ramp</b><span>Follow how Wizards connects actual play, event play, D&D Beyond content, and sourcebook marketing ahead of June release.</span></div>
-        </div>
-      </section>
-
-      <section id="sources">
-        <h2>10. Source List</h2>
-        <p class="lead">Visible source links are preserved below for auditability and for use in the next publishing pass.</p>
-        <div class="grid-2">
-          <div class="card">
-            <h3>Official / Primary Sources</h3>
-            <ul>
-              <li><a href="https://investor.hasbro.com/news-releases/news-release-details/wizards-coast-announces-dungeon-masters-official-dungeons">Hasbro/Wizards: Dungeon Masters announcement</a></li>
-              <li><a href="https://www.dndbeyond.com/posts/2161-designer-insights-from-unearthed-arcana-villainous">D&D Beyond: Villainous Options 2</a></li>
-              <li><a href="https://www.dndbeyond.com/changelog">D&D Beyond: Changelog</a></li>
-              <li><a href="https://www.dndbeyond.com/posts/2139-q2-2026-partnered-content-release-schedule">D&D Beyond: Q2 2026 Partnered Content Schedule</a></li>
-              <li><a href="https://investor.hasbro.com/news-releases/news-release-details/hasbro-announces-preliminary-first-quarter-2026-financial">Hasbro: Preliminary Q1 2026 results and network access update</a></li>
-              <li><a href="https://foundryvtt.com/releases/14.360">Foundry VTT: Release 14.360</a></li>
-              <li><a href="https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log">Roll20: Change Log</a></li>
-              <li><a href="https://www.demiplane.com/blog">Demiplane: Blog</a></li>
-              <li><a href="https://alchemyrpg.com/blades-in-the-dark">Alchemy RPG: Blades in the Dark</a></li>
-              <li><a href="https://cwa-union.org/news/releases/wizards-coast-developers-form-union-cwa">CWA: Wizards of the Coast developers form union</a></li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Industry / Trade / Community Sources</h3>
-            <ul>
-              <li><a href="https://www.reuters.com/business/retail-consumer/hasbro-delays-quarterly-results-after-cybersecurity-incident-2026-04-23/">Reuters: Hasbro delays quarterly results after cybersecurity incident</a></li>
-              <li><a href="https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization">The Guardian: MTG Arena workers unionizing</a></li>
-              <li><a href="https://www.rascal.news/blades-in-the-dark-alchemy-rpg-vtt/">Rascal: Blades in the Dark arrives on Alchemy</a></li>
-              <li><a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy">TTRPG Insider: Q1 2026 crowdfunding analysis</a></li>
-              <li><a href="https://www.backerkit.com/c/projects/world-s-largest-rpgs/traveller-5e">BackerKit: Traveller 5E</a></li>
-              <li><a href="https://renegadegamestudios.com/blog/renegade-game-studios-launches-dungeon-crawler-carl-tabletop-games-on-backerkit/">Renegade Game Studios: Dungeon Crawler Carl launch</a></li>
-              <li><a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable">BackerKit: Dungeon Crawler Carl RPG + Unstoppable</a></li>
-              <li><a href="https://www.reddit.com/r/onednd/comments/1st9ps0/dungeon_masters_episodes_1_2_official_dd_actual/">Reddit r/onednd: Dungeon Masters reaction</a></li>
-              <li><a href="https://www.reddit.com/r/DnD/comments/1stom5p/dungeon_masters_new_dnd_live_action/">Reddit r/DnD: Dungeon Masters viewership discussion</a></li>
-              <li><a href="https://www.reddit.com/r/dndnext/comments/1strcna/unearthed_arcana_villainous_options_2_barbarian/">Reddit r/dndnext: Villainous Options 2 discussion</a></li>
-              <li><a href="https://www.reddit.com/r/dndbeyond/comments/1squxit/whats_new_on_ddb_changelog_4202026/">Reddit r/dndbeyond: D&D Beyond changelog/performance discussion</a></li>
-            </ul>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer>
-      Last updated: 28 Apr 2026 · The Dungeon Economy · Issue #2 · Where D&D meets product, platform, and demand.
-    </footer>
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="#" class="brand-link">
+      <div class="brand-dot"></div>
+      <strong>The Dungeon Economy</strong>
+    </a>
+    <div class="topbar-right">
+      <a href="#" class="nav-btn disabled">← Issue #1</a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-btn disabled">Issue #3 →</a>
+      <button id="themeToggle" class="toggle">Light mode</button>
+    </div>
   </div>
+</div>
 
-  <script>
-    const root = document.documentElement;
-    const btn = document.getElementById('themeToggle');
-    const stored = localStorage.getItem('dungeonEconomyTheme');
-    if (stored === 'dark' || stored === 'light') {
-      root.setAttribute('data-theme', stored);
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      root.setAttribute('data-theme', 'dark');
-    }
-    function updateButton() {
-      const theme = root.getAttribute('data-theme');
-      btn.textContent = theme === 'dark' ? 'Toggle light mode' : 'Toggle dark mode';
-    }
-    updateButton();
-    btn.addEventListener('click', () => {
-      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      root.setAttribute('data-theme', next);
-      localStorage.setItem('dungeonEconomyTheme', next);
-      updateButton();
-    });
-  </script>
+<nav class="section-nav">
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="#overview" class="nav-item active">Overview</a>
+      <a href="#official" class="nav-item">Official</a>
+      <a href="#platform" class="nav-item">Platform</a>
+      <a href="#labor" class="nav-item">Labor</a>
+      <a href="#market" class="nav-item">Market</a>
+      <a href="#players" class="nav-item">Players</a>
+      <a href="#dms" class="nav-item">DMs</a>
+      <a href="#creators" class="nav-item">Creators</a>
+      <a href="#unknowns" class="nav-item">Unknowns</a>
+      <a href="#watchlist" class="nav-item">Watchlist</a>
+      <a href="#sources" class="nav-item">Sources</a>
+    </div>
+  </div>
+</nav>
+
+<section id="overview" class="cover-panel">
+  <div class="wrap">
+    <div class="cover-kicker">Issue #2 — April 28, 2026</div>
+    <h1 class="cover-question">What is the market doing right now?</h1>
+    <p class="cover-tagline">A weekly review of D&D product, platform, and commercial activity — for creators, DMs, publishers, and players who want to know where the ecosystem is moving.</p>
+    <div class="cover-date">Published April 28, 2026</div>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="wrap">
+    <div class="eyebrow">This Week</div>
+    <h2 class="section-title">What happened this week in D&D</h2>
+    
+    <div class="content-section">
+      <p class="lead">This week combined official content announcements, meaningful platform updates, labor organizing news, and continued commercial momentum in crowdfunding. Here's what matters, grouped by category, with confidence ratings and interpretation notes.</p>
+    </div>
+
+    <div class="grid-4">
+      <div class="card">
+        <div class="eyebrow">Signals</div>
+        <h3 style="margin-top:8px;">5 Confirmed</h3>
+        <p style="font-size:0.88rem;color:var(--muted);margin:0;">Official announcements and hard launches</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Platform</div>
+        <h3 style="margin-top:8px;">4 Updates</h3>
+        <p style="font-size:0.88rem;color:var(--muted);margin:0;">D&D Beyond, VTTs, digital tools</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Market</div>
+        <h3 style="margin-top:8px;">3 Campaigns</h3>
+        <p style="font-size:0.88rem;color:var(--muted);margin:0;">Crowdfunding and commercial activity</p>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Labor</div>
+        <h3 style="margin-top:8px;">1 Union</h3>
+        <p style="font-size:0.88rem;color:var(--muted);margin:0;">Organizing news from Wizards</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="official" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">Category: Official WotC Activity</div>
+    <h2 class="section-title">1. Official D&D Announcements and Releases</h2>
+
+    <div class="article-item">
+      <h3><em>Dungeon Masters</em> — Official D&D actual play series launches</h3>
+      <div class="label-row">
+        <span class="pill pill-high">Confidence: High</span>
+        <span class="pill pill-confirmed">Type: Confirmed launch</span>
+        <span class="pill pill-community">Affects: Players, DMs, creators</span>
+      </div>
+      <p><strong>What happened:</strong> Wizards launched <em>Dungeon Masters</em>, a live-action D&D actual play series starring Freddie Prinze Jr. as DM, with Jameela Jamil, Anna Akana, B. Dave Walters, B.J. Britt, and Ify Nwadiwe as players. First two episodes released April 24 on YouTube, Twitch, and D&D Beyond.</p>
+      <p><strong>Why it matters:</strong> This is Wizards' first major official actual play push since <em>Critical Role</em> became independent. The series is designed as a hybrid content-and-product funnel: entertainment leads to D&D Beyond sign-ups, free play-along materials, and a clear pathway to the Ravenloft sourcebook (June 16).</p>
+      <p><strong>Creator read:</strong> The series demonstrates the official version of a modern creator funnel: awareness (entertainment) → engagement (free materials) → conversion (product purchase). Small creators can copy this structure at lower budget: one compelling scene, one free playable encounter, clean product link.</p>
+      <div class="source"><b>Sources:</b> Hasbro/Wizards — <a href="https://investor.hasbro.com/news-releases/news-release-details/wizards-coast-announces-dungeon-masters-official-dungeons">https://investor.hasbro.com/news-releases/news-release-details/wizards-coast-announces-dungeon-masters-official-dungeons</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3>Unearthed Arcana: <em>Villainous Options 2</em></h3>
+      <div class="label-row">
+        <span class="pill pill-high">Confidence: High</span>
+        <span class="pill pill-confirmed">Type: Official playtest</span>
+        <span class="pill pill-community">Affects: Players, DMs</span>
+      </div>
+      <p><strong>What happened:</strong> Wizards released <em>Villainous Options 2</em> for playtesting — experimental subclasses for Barbarian, Monk, and Warlock. Survey opens April 30.</p>
+      <p><strong>Why it matters:</strong> UA remains Wizards' primary mechanism for testing aggressive design ideas before official release. These are not guaranteed to reach print. The Monk subclass addresses long-standing community feedback around mobility and battlefield control, while the Warlock subclass tests patron-less power sourcing.</p>
+      <p><strong>Player/DM read:</strong> Treat UA as sandbox material, not table standard. Use for one-shots or short arcs, not long campaigns. Survey feedback matters — Wizards does read aggregate sentiment.</p>
+      <div class="source"><b>Sources:</b> D&D Beyond — <a href="https://www.dndbeyond.com/posts/2161-designer-insights-from-unearthed-arcana-villainous">https://www.dndbeyond.com/posts/2161-designer-insights-from-unearthed-arcana-villainous</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="platform" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Category: Platform & Tools</div>
+    <h2 class="section-title">2. D&D Beyond, VTTs, and Digital Infrastructure</h2>
+
+    <div class="article-item">
+      <h3>D&D Beyond releases Maps beta and multiple bug fixes</h3>
+      <div class="label-row">
+        <span class="pill pill-high">Confidence: High</span>
+        <span class="pill pill-confirmed">Type: Platform update</span>
+        <span class="pill pill-community">Affects: DMs, players</span>
+      </div>
+      <p><strong>What happened:</strong> D&D Beyond launched Maps (beta) for campaign map management, fixed Game Log performance issues, improved character sheet stability, and resolved Firefox compatibility bugs.</p>
+      <p><strong>Why it matters:</strong> The platform still has trust issues stemming from past outages and slow performance. This round of fixes addresses user complaints from March and April. Maps entering beta is a statement of intent: D&D Beyond wants to become the single login for campaign prep, play, and character management.</p>
+      <p><strong>DM read:</strong> Test Maps in non-critical sessions first. Stability beats convenience. Keep backup workflows ready.</p>
+      <div class="source"><b>Sources:</b> D&D Beyond Changelog — <a href="https://www.dndbeyond.com/changelog">https://www.dndbeyond.com/changelog</a><br>Community feedback aggregated from Reddit r/dndbeyond</div>
+    </div>
+
+    <div class="article-item">
+      <h3>Foundry VTT releases version 14 stable, Roll20 and Demiplane ship updates</h3>
+      <div class="label-row">
+        <span class="pill pill-high">Confidence: High</span>
+        <span class="pill pill-confirmed">Type: Platform updates</span>
+        <span class="pill pill-community">Affects: DMs</span>
+      </div>
+      <p><strong>What happened:</strong> Foundry VTT moved version 14 to stable release (performance improvements, new lighting system, module API changes). Roll20 shipped UI refinements. Demiplane expanded system support and improved sheet rendering.</p>
+      <p><strong>Why it matters:</strong> VTT diversity is healthy for the ecosystem. Each platform is pushing toward better performance and modularity. Foundry's API changes mean some modules will break — migration requires testing.</p>
+      <p><strong>DM read:</strong> Do not upgrade mid-campaign unless you've tested module compatibility on a duplicate world first. Stability beats novelty.</p>
+      <div class="source"><b>Sources:</b> Foundry VTT — <a href="https://foundryvtt.com/releases/14.360">https://foundryvtt.com/releases/14.360</a><br>Roll20 — <a href="https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log">https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log</a><br>Demiplane — <a href="https://www.demiplane.com/blog">https://www.demiplane.com/blog</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3>Alchemy RPG adds <em>Blades in the Dark</em></h3>
+      <div class="label-row">
+        <span class="pill pill-high">Confidence: High</span>
+        <span class="pill pill-confirmed">Type: Platform expansion</span>
+        <span class="pill pill-community">Affects: Non-D&D creators, players</span>
+      </div>
+      <p><strong>What happened:</strong> Alchemy RPG, a VTT built for rules-light and narrative games, added full support for <em>Blades in the Dark</em>.</p>
+      <p><strong>Why it matters:</strong> Platform diversity benefits the entire ecosystem. Alchemy is purpose-built for games like Blades, Fate, and PbtA — systems that don't fit cleanly into D&D-first VTTs. This is a reminder that TTRPG digital infrastructure is not D&D-only.</p>
+      <div class="source"><b>Sources:</b> Alchemy RPG — <a href="https://alchemyrpg.com/blades-in-the-dark">https://alchemyrpg.com/blades-in-the-dark</a><br>Rascal News — <a href="https://www.rascal.news/blades-in-the-dark-alchemy-rpg-vtt/">https://www.rascal.news/blades-in-the-dark-alchemy-rpg-vtt/</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="labor" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">Category: Labor & Corporate</div>
+    <h2 class="section-title">3. Wizards of the Coast Union Formation</h2>
+
+    <div class="article-item">
+      <h3>Wizards of the Coast developers form union with CWA</h3>
+      <div class="label-row">
+        <span class="pill pill-high">Confidence: High</span>
+        <span class="pill pill-confirmed">Type: Confirmed organizing</span>
+        <span class="pill pill-community">Affects: Industry structure</span>
+      </div>
+      <p><strong>What happened:</strong> More than 200 developers working on <em>Magic: The Gathering Arena</em> announced union formation with the Communications Workers of America (CWA). The union includes engineers, designers, artists, and QA testers.</p>
+      <p><strong>Why it matters:</strong> This is the largest wall-to-wall union at a major tabletop/digital game studio. It follows layoffs in late 2023 and concerns about workload, crunch, and job security. Whether Hasbro voluntarily recognizes the union or forces a formal election will signal how the company approaches labor relations going forward.</p>
+      <p><strong>Industry read:</strong> Game industry unionization is accelerating. This puts pressure on other publishers to address working conditions before organized efforts begin.</p>
+      <div class="source"><b>Sources:</b> CWA — <a href="https://cwa-union.org/news/releases/wizards-coast-developers-form-union-cwa">https://cwa-union.org/news/releases/wizards-coast-developers-form-union-cwa</a><br>The Guardian — <a href="https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization">https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3>Hasbro delays Q1 earnings following cybersecurity incident</h3>
+      <div class="label-row">
+        <span class="pill pill-high">Confidence: High</span>
+        <span class="pill pill-confirmed">Type: Corporate disclosure</span>
+        <span class="pill pill-reported">Affects: Unclear D&D impact</span>
+      </div>
+      <p><strong>What happened:</strong> Hasbro disclosed a cybersecurity incident affecting network access and delayed Q1 2026 earnings release. The company stated it is working with external cybersecurity experts and has notified law enforcement.</p>
+      <p><strong>Why it matters:</strong> No D&D-specific service disruptions have been confirmed in the reporting window reviewed. However, corporate infrastructure incidents can affect distribution, licensing, and digital platform operations. Keep on watch for downstream effects.</p>
+      <div class="source"><b>Sources:</b> Hasbro Investor Relations — <a href="https://investor.hasbro.com/news-releases/news-release-details/hasbro-announces-preliminary-first-quarter-2026-financial">https://investor.hasbro.com/news-releases/news-release-details/hasbro-announces-preliminary-first-quarter-2026-financial</a><br>Reuters — <a href="https://www.reuters.com/business/retail-consumer/hasbro-delays-quarterly-results-after-cybersecurity-incident-2026-04-23/">https://www.reuters.com/business/retail-consumer/hasbro-delays-quarterly-results-after-cybersecurity-incident-2026-04-23/</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="market" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Category: Market & Commercial</div>
+    <h2 class="section-title">4. Crowdfunding, Licensing, and Commercial Activity</h2>
+
+    <div class="article-item">
+      <h3>Q1 2026 crowdfunding analysis shows continued growth</h3>
+      <div class="label-row">
+        <span class="pill pill-medium">Confidence: Medium-high</span>
+        <span class="pill pill-confirmed">Type: Market analysis</span>
+        <span class="pill pill-community">Affects: Creators, publishers</span>
+      </div>
+      <p><strong>What happened:</strong> TTRPG Insider published Q1 2026 crowdfunding analysis showing a 25% year-over-year increase in campaigns exceeding $100K. 5E-compatible projects remain dominant but non-5E projects also showed funding growth.</p>
+      <p><strong>Why it matters:</strong> Crowdfunding remains the primary commercial mechanism for independent and mid-tier TTRPG publishers. Growth is good, but it is concentrated in established creators and strong marketing funnels. First-time creators still face high discovery barriers.</p>
+      <p><strong>Creator read:</strong> Successful campaigns in 2026 share common traits: pre-launch audience building, clear product hook, professional presentation, and integration with digital platforms (VTT modules, D&D Beyond compatibility).</p>
+      <div class="source"><b>Sources:</b> TTRPG Insider — <a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy">https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3><em>Traveller</em> 5E conversion campaign ongoing on BackerKit</h3>
+      <div class="label-row">
+        <span class="pill pill-medium">Confidence: Medium-high</span>
+        <span class="pill pill-confirmed">Type: Active campaign</span>
+        <span class="pill pill-community">Affects: Publishers, designers</span>
+      </div>
+      <p><strong>What happened:</strong> Mongoose Publishing launched a 5E-compatible version of <em>Traveller</em> on BackerKit. Campaign is ongoing, closes May 15.</p>
+      <p><strong>Why it matters:</strong> <em>Traveller</em> is a 47-year-old sci-fi RPG with its own system. Converting it to 5E is a bet that the 5E audience is large enough to justify development cost. This is a useful benchmark: can established non-fantasy IP successfully convert to 5E and find commercial traction?</p>
+      <p><strong>Publisher read:</strong> Watch final funding total and post-campaign reception. If this works, it opens a path for other legacy systems to reach the 5E audience.</p>
+      <div class="source"><b>Sources:</b> BackerKit — <a href="https://www.backerkit.com/c/projects/world-s-largest-rpgs/traveller-5e">https://www.backerkit.com/c/projects/world-s-largest-rpgs/traveller-5e</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3><em>Dungeon Crawler Carl</em> enters tabletop crowdfunding</h3>
+      <div class="label-row">
+        <span class="pill pill-medium">Confidence: Medium-high</span>
+        <span class="pill pill-confirmed">Type: Confirmed campaign + analysis</span>
+        <span class="pill pill-community">Affects: Publishers, designers, retailers</span>
+      </div>
+      <p><strong>What happened:</strong> Renegade Game Studios launched a BackerKit campaign for <em>Dungeon Crawler Carl: Role-Playing Game & Unstoppable</em>, pairing a licensed RPG with a solo/co-op card-crafting game.</p>
+      <p><strong>Why it matters:</strong> LitRPG and progression-fantasy audiences are moving closer to tabletop. For D&D creators, the signal is that dungeon progression, loot loops, character builds, and "game-like fiction" are increasingly overlapping.</p>
+      <div class="source"><b>Sources:</b> Renegade Game Studios — <a href="https://renegadegamestudios.com/blog/renegade-game-studios-launches-dungeon-crawler-carl-tabletop-games-on-backerkit/">https://renegadegamestudios.com/blog/renegade-game-studios-launches-dungeon-crawler-carl-tabletop-games-on-backerkit/</a><br>BackerKit — <a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable">https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="players" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">For Players</div>
+    <h2 class="section-title">5. Implications for Players</h2>
+    <div class="brief-list">
+      <div class="row"><b>More guided entry points</b><span>Official actual play plus D&D Beyond play-along material gives newer players a smoother route from watching to trying the game.</span></div>
+      <div class="row"><b>More experimental options</b><span>UA remains a place for bold player concepts, but players should treat <em>Villainous Options 2</em> as testing material, not guaranteed table standard.</span></div>
+      <div class="row"><b>Platform reliability matters</b><span>Players relying on D&D Beyond sheets, dice, and Maps should test their setup before play. Convenience only helps when it is stable.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="dms" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">For DMs</div>
+    <h2 class="section-title">6. Implications for DMs</h2>
+    <div class="brief-list">
+      <div class="row"><b>Ravenloft is heating up</b><span>Wizards is aligning actual play, premium events, D&D Beyond content, and a June release around Ravenloft. Horror and gothic fantasy tables should watch this closely.</span></div>
+      <div class="row"><b>Do not update blindly</b><span>Foundry V14 may be stable, but live campaign stacks depend on system, module, and hosting compatibility. Stability beats novelty.</span></div>
+      <div class="row"><b>Prep for digital failure</b><span>If your session depends on D&D Beyond or another VTT, keep a backup plan: exported sheets, offline notes, or a simplified map workflow.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="creators" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">For Creators</div>
+    <h2 class="section-title">7. Implications for D&D / TTRPG Content Creators</h2>
+    <p class="lead">The clearest creator takeaway this week: products now compete on usefulness, not just imagination. A great PDF is still valuable, but a great PDF with digital hooks, playable samples, and a clear audience pathway is stronger.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Copy the funnel, not the budget</h3>
+        <p><em>Dungeon Masters</em> shows the official version of a modern product funnel: entertainment, setting interest, free playable material, then purchase path. Small creators can do this with a short scene, one free encounter, and a clean product link.</p>
+      </div>
+      <div class="card">
+        <h3>Platform fit is now a feature</h3>
+        <p>D&D Beyond, Demiplane, Roll20, Alchemy, and Foundry all point toward the same future: buyers increasingly expect content to work where they play.</p>
+      </div>
+      <div class="card">
+        <h3>5E remains powerful, not mandatory</h3>
+        <p>Traveller 5E shows the commercial power of 5E conversion. TTRPG Insider's Q1 analysis shows that non-5E projects can also win. The better question is: which audience are you built to serve?</p>
+      </div>
+      <div class="card">
+        <h3>Genre adjacency is opportunity</h3>
+        <p><em>Dungeon Crawler Carl</em> suggests that LitRPG, progression fantasy, and dungeon-core audiences are increasingly relevant to tabletop publishers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="unknowns" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Open Questions</div>
+    <h2 class="section-title">8. Critical Unknowns</h2>
+    <ul style="list-style:none;padding:0;">
+      <li style="background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;"><strong>Will <em>Dungeon Masters</em> convert?</strong> Early reaction is not the KPI. The key question is whether viewers become D&D Beyond users, play-along downloaders, and Ravenloft buyers.</li>
+      <li style="background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;"><strong>Can D&D Beyond Maps become trusted for live campaigns?</strong> The changelog is promising, but trust will depend on repeated smooth sessions, not single update notes.</li>
+      <li style="background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;"><strong>How will Wizards/Hasbro respond to the union effort?</strong> The CWA announcement makes this a near-term business and labor story.</li>
+      <li style="background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;"><strong>Will Hasbro's network incident have D&D-specific fallout?</strong> No confirmed D&D-specific disruption was found in this window. Keep it on watch, especially for distribution and licensed product timing.</li>
+      <li style="background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;"><strong>Is crowdfunding growth broad or campaign-clustered?</strong> Q1 looks positive, but the category needs more than one quarter of data before calling it a durable expansion.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="watchlist" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">Next Week</div>
+    <h2 class="section-title">9. Recommended Watchlist for Next Week</h2>
+    <div class="brief-list">
+      <div class="row"><b>Dungeon Masters</b><span>Track episode-to-episode viewership, comments, and whether play-along content becomes a meaningful engagement loop.</span></div>
+      <div class="row"><b>Villainous Options 2 survey</b><span>Survey opens April 30. Watch for feedback around Monk balance, Warlock identity, and Barbarian reception.</span></div>
+      <div class="row"><b>Wizards union response</b><span>Watch whether Hasbro/Wizards voluntarily recognizes the union or moves toward a formal election process.</span></div>
+      <div class="row"><b>D&D Beyond performance</b><span>Track whether Game Log, Maps, Firefox, and character sheet complaints decrease after recent fixes.</span></div>
+      <div class="row"><b>Traveller 5E funding curve</b><span>Campaign ends May 15. Useful benchmark for 5E conversion demand outside fantasy.</span></div>
+      <div class="row"><b>Foundry V14 migration</b><span>Watch module compatibility and hosted-service guidance before recommending live campaign upgrades.</span></div>
+      <div class="row"><b>Ravenloft ramp</b><span>Follow how Wizards connects actual play, event play, D&D Beyond content, and sourcebook marketing ahead of June release.</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="sources" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Sources &amp; Method</div>
+    <h2 class="section-title">10. Source List</h2>
+    <p class="lead">Visible source links are preserved below for auditability and for use in the next publishing pass.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Official / Primary Sources</h3>
+        <ul style="font-size:0.88rem;line-height:1.8;">
+          <li><a href="https://investor.hasbro.com/news-releases/news-release-details/wizards-coast-announces-dungeon-masters-official-dungeons">Hasbro/Wizards: Dungeon Masters announcement</a></li>
+          <li><a href="https://www.dndbeyond.com/posts/2161-designer-insights-from-unearthed-arcana-villainous">D&D Beyond: Villainous Options 2</a></li>
+          <li><a href="https://www.dndbeyond.com/changelog">D&D Beyond: Changelog</a></li>
+          <li><a href="https://www.dndbeyond.com/posts/2139-q2-2026-partnered-content-release-schedule">D&D Beyond: Q2 2026 Partnered Content Schedule</a></li>
+          <li><a href="https://investor.hasbro.com/news-releases/news-release-details/hasbro-announces-preliminary-first-quarter-2026-financial">Hasbro: Preliminary Q1 2026 results and network access update</a></li>
+          <li><a href="https://foundryvtt.com/releases/14.360">Foundry VTT: Release 14.360</a></li>
+          <li><a href="https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log">Roll20: Change Log</a></li>
+          <li><a href="https://www.demiplane.com/blog">Demiplane: Blog</a></li>
+          <li><a href="https://alchemyrpg.com/blades-in-the-dark">Alchemy RPG: Blades in the Dark</a></li>
+          <li><a href="https://cwa-union.org/news/releases/wizards-coast-developers-form-union-cwa">CWA: Wizards of the Coast developers form union</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Industry / Trade / Community Sources</h3>
+        <ul style="font-size:0.88rem;line-height:1.8;">
+          <li><a href="https://www.reuters.com/business/retail-consumer/hasbro-delays-quarterly-results-after-cybersecurity-incident-2026-04-23/">Reuters: Hasbro delays quarterly results after cybersecurity incident</a></li>
+          <li><a href="https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization">The Guardian: MTG Arena workers unionizing</a></li>
+          <li><a href="https://www.rascal.news/blades-in-the-dark-alchemy-rpg-vtt/">Rascal: Blades in the Dark arrives on Alchemy</a></li>
+          <li><a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy">TTRPG Insider: Q1 2026 crowdfunding analysis</a></li>
+          <li><a href="https://www.backerkit.com/c/projects/world-s-largest-rpgs/traveller-5e">BackerKit: Traveller 5E</a></li>
+          <li><a href="https://renegadegamestudios.com/blog/renegade-game-studios-launches-dungeon-crawler-carl-tabletop-games-on-backerkit/">Renegade Game Studios: Dungeon Crawler Carl launch</a></li>
+          <li><a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable">BackerKit: Dungeon Crawler Carl RPG + Unstoppable</a></li>
+          <li><a href="https://www.reddit.com/r/onednd/comments/1st9ps0/dungeon_masters_episodes_1_2_official_dd_actual/">Reddit r/onednd: Dungeon Masters reaction</a></li>
+          <li><a href="https://www.reddit.com/r/DnD/comments/1stom5p/dungeon_masters_new_dnd_live_action/">Reddit r/DnD: Dungeon Masters viewership discussion</a></li>
+          <li><a href="https://www.reddit.com/r/dndnext/comments/1strcna/unearthed_arcana_villainous_options_2_barbarian/">Reddit r/dndnext: Villainous Options 2 discussion</a></li>
+          <li><a href="https://www.reddit.com/r/dndbeyond/comments/1squxit/whats_new_on_ddb_changelog_4202026/">Reddit r/dndbeyond: D&D Beyond changelog/performance discussion</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:32px;padding:20px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);font-size:0.88rem;line-height:1.7;color:var(--muted);">
+      <strong style="display:block;margin-bottom:8px;color:var(--text);">Method Note</strong>
+      This report combines official product and publisher information, secondary reporting, community discussion, and commercial signal tracking. Hard facts are sourced primarily from official pages and listings. Community discussion is used to assess sentiment and stated desire, not establish factual claims. Interpretation sections represent informed judgment grounded in the week's sourced evidence, not certainty.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div><strong>The Dungeon Economy</strong><span> Issue #2 &nbsp;·&nbsp; April 28, 2026</span></div>
+    <div style="color:var(--muted);font-size:0.88rem;">Where D&D meets product, platform, and demand.</div>
+  </div>
+</footer>
+
+<script>
+(function(){const key='dungeon-economy-theme',root=document.documentElement,btn=document.getElementById('themeToggle');function apply(t){root.setAttribute('data-theme',t);btn.textContent=t==='dark'?'Light mode':'Dark mode';}const saved=localStorage.getItem(key);apply(saved==='light'||saved==='dark'?saved:'dark');btn.addEventListener('click',function(){const next=root.getAttribute('data-theme')==='dark'?'light':'dark';localStorage.setItem(key,next);apply(next);});})();
+(function(){const items=document.querySelectorAll('.nav-item');const panels=document.querySelectorAll('section[id]');const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){items.forEach(i=>i.classList.remove('active'));const active=document.querySelector('.nav-item[href="#'+e.target.id+'"]');if(active){active.classList.add('active');active.scrollIntoView({block:'nearest',inline:'center'});}}});},{threshold:0.25});panels.forEach(p=>obs.observe(p));})();
+</script>
 </body>
 </html>
