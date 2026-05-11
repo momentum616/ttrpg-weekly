@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Dungeon Economy — Issue #3</title>
+  <style>
+    :root {
+      --bg: #f6f2ea;
+      --bg-soft: #efe7da;
+      --panel: #fffaf1;
+      --panel-2: #f9f1e4;
+      --text: #211b16;
+      --muted: #6e6258;
+      --line: rgba(44, 32, 22, 0.16);
+      --accent: #9b4d1f;
+      --accent-2: #d58b35;
+      --accent-soft: rgba(155, 77, 31, 0.12);
+      --green: #3d7a4f;
+      --blue: #356b96;
+      --purple: #7052a0;
+      --red: #9b3f3f;
+      --shadow: 0 18px 50px rgba(49, 35, 20, 0.12);
+      --radius: 22px;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --serif: Georgia, "Times New Roman", serif;
+    }
+
+    html[data-theme="dark"] {
+      --bg: #15110d;
+      --bg-soft: #1d1712;
+      --panel: #211a14;
+      --panel-2: #2a2119;
+      --text: #f7ead8;
+      --muted: #c0aa92;
+      --line: rgba(247, 234, 216, 0.15);
+      --accent: #efaa5b;
+      --accent-2: #d17634;
+      --accent-soft: rgba(239, 170, 91, 0.13);
+      --green: #8bcf9a;
+      --blue: #8ab9e6;
+      --purple: #b7a1f0;
+      --red: #ef9a9a;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(circle at top left, rgba(213, 139, 53, 0.16), transparent 32rem),
+        radial-gradient(circle at 80% 0%, rgba(155, 77, 31, 0.10), transparent 35rem),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 0.08em;
+      text-underline-offset: 0.18em;
+      overflow-wrap: anywhere;
+    }
+
+    a:hover { color: var(--accent-2); }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 72px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar-inner {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      gap: 16px;
+    }
+
+    .brand-small {
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      font-size: 0.95rem;
+    }
+
+    .theme-toggle {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+    }
+
+    header.masthead {
+      margin-top: 32px;
+      padding: 48px;
+      border: 1px solid var(--line);
+      border-radius: 34px;
+      background:
+        linear-gradient(135deg, color-mix(in srgb, var(--panel) 88%, var(--accent-soft)), var(--panel)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header.masthead::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -90px;
+      width: 280px;
+      height: 280px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(213, 139, 53, 0.22), transparent 65%);
+      pointer-events: none;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      font-family: var(--serif);
+      font-size: clamp(3rem, 8vw, 6.3rem);
+      line-height: 0.92;
+      letter-spacing: -0.06em;
+    }
+
+    .tagline {
+      font-size: clamp(1.1rem, 2vw, 1.45rem);
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 0 28px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 880px;
+      margin-top: 28px;
+    }
+
+    .meta-card {
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--panel-2) 78%, transparent);
+      border-radius: 16px;
+      padding: 14px 16px;
+    }
+
+    .meta-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    .meta-card strong {
+      display: block;
+      margin-top: 3px;
+      font-size: 0.98rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      gap: 24px;
+      margin-top: 24px;
+      align-items: start;
+    }
+
+    aside { position: sticky; top: 68px; }
+
+    .toc, .section, .takeaways {
+      border: 1px solid var(--line);
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      border-radius: var(--radius);
+      box-shadow: 0 12px 34px rgba(0,0,0,0.06);
+    }
+
+    .toc { padding: 18px; }
+
+    .toc h2 {
+      margin: 0 0 10px;
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .toc a {
+      display: block;
+      padding: 8px 0;
+      color: var(--text);
+      text-decoration: none;
+      border-top: 1px solid var(--line);
+      font-size: 0.92rem;
+    }
+
+    .toc a:hover { color: var(--accent); padding-left: 4px; }
+
+    main { display: grid; gap: 24px; }
+
+    .section {
+      padding: clamp(22px, 4vw, 34px);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .section:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
+      box-shadow: var(--shadow);
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-family: var(--serif);
+    }
+
+    .section h3 {
+      margin: 28px 0 8px;
+      font-size: 1.15rem;
+      line-height: 1.25;
+    }
+
+    .section p { margin: 0 0 14px; }
+
+    .dek {
+      color: var(--muted);
+      font-size: 1.03rem;
+      margin-bottom: 22px !important;
+    }
+
+    .takeaways {
+      padding: 24px;
+      background: linear-gradient(135deg, var(--accent-soft), transparent), var(--panel);
+    }
+
+    .takeaways h2 {
+      margin: 0 0 12px;
+      font-size: 1.4rem;
+      letter-spacing: -0.02em;
+    }
+
+    .takeaway-grid, .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .takeaway, .card, .mood-line, .watch-item {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .takeaway strong { display: block; margin-bottom: 4px; }
+
+    .cards { display: grid; gap: 16px; }
+
+    .card {
+      padding: 20px;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    }
+
+    .card h3 { margin-top: 0; }
+
+    .label-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+      background: var(--panel);
+    }
+
+    .verified { color: var(--green); }
+    .analysis { color: var(--blue); }
+    .speculation { color: var(--purple); }
+    .community { color: var(--red); }
+
+    .evidence {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .evidence strong { color: var(--text); }
+
+    .source-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .source-list a {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 999px;
+      padding: 5px 10px;
+      text-decoration: none;
+      font-size: 0.82rem;
+    }
+
+    .mood, .watch-list { display: grid; gap: 12px; }
+
+    .watch-list { counter-reset: watch; margin-top: 16px; }
+
+    .watch-item {
+      counter-increment: watch;
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .watch-item::before {
+      content: counter(watch);
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; }
+      .toc { display: none; }
+      .meta-grid, .takeaway-grid, .split { grid-template-columns: 1fr; }
+      header.masthead { padding: 32px 24px; }
+    }
+
+    @media print {
+      html[data-theme="dark"], html[data-theme="light"] {
+        --bg: #ffffff;
+        --panel: #ffffff;
+        --panel-2: #ffffff;
+        --text: #111111;
+        --muted: #555555;
+        --line: rgba(0, 0, 0, 0.2);
+        --accent: #7a3416;
+        --accent-2: #7a3416;
+        --accent-soft: rgba(122, 52, 22, 0.08);
+        --shadow: none;
+      }
+      body { background: #ffffff; }
+      .topbar, aside, .theme-toggle { display: none !important; }
+      .page { width: 100%; padding: 0; }
+      header.masthead, .section, .takeaways, .card, .mood-line, .watch-item {
+        box-shadow: none;
+        break-inside: avoid;
+      }
+      .section:hover, .card:hover { transform: none; }
+      a { color: #111111; text-decoration: underline; }
+      .source-list a::after {
+        content: " (" attr(href) ")";
+        font-size: 0.75rem;
+        color: #444444;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-small">The Dungeon Economy · Issue #3</div>
+      <button class="theme-toggle" type="button" onclick="toggleTheme()">Toggle light/dark</button>
+    </div>
+  </div>
+
+  <div class="page">
+    <header class="masthead">
+      <span class="kicker">Weekly brief</span>
+      <h1>The Dungeon Economy</h1>
+      <p class="tagline">Where D&amp;D meets product, platform, and demand.</p>
+      <div class="meta-grid">
+        <div class="meta-card"><span>Issue</span><strong>#3</strong></div>
+        <div class="meta-card"><span>Issue Date</span><strong>11 May 2026</strong></div>
+        <div class="meta-card"><span>Coverage Window</span><strong>28 Apr – 11 May 2026</strong></div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside>
+        <nav class="toc" aria-label="Table of contents">
+          <h2>In this issue</h2>
+          <a href="#glance">At a Glance</a>
+          <a href="#developments">Verified Developments</a>
+          <a href="#mood">Market Mood</a>
+          <a href="#platform">Platform Watch</a>
+          <a href="#creator">Creator Economy Signals</a>
+          <a href="#community">Community Pulse</a>
+          <a href="#ai">AI &amp; Tooling Watch</a>
+          <a href="#unknowns">Critical Unknowns</a>
+          <a href="#means">What This Means</a>
+          <a href="#signals">Signals to Watch</a>
+          <a href="#outlook">Final Analysis</a>
+        </nav>
+      </aside>
+
+      <main>
+        <section class="takeaways" id="takeaways">
+          <h2>Key Takeaways</h2>
+          <p>This issue is defined by a clear shift: major platforms and publishers are turning tabletop content into a steadier stream of digital utility. That creates real convenience for DMs, but it also raises sharper questions around ownership, subscriptions, platform lock-in, AI disclosure, and discoverability for small creators.</p>
+          <div class="takeaway-grid">
+            <div class="takeaway"><strong>Subscriptions are becoming table-facing.</strong>D&amp;D Beyond Drops, Roll20 Reserve, and Dungeon Crawler Carl’s digital-drop language all point toward recurring content as a core product model.</div>
+            <div class="takeaway"><strong>Premium third-party 5E is still strong.</strong>Neon Odyssey’s crowdfunding performance shows that audience-backed, high-concept 5E worlds can still command major demand.</div>
+            <div class="takeaway"><strong>VTTs are competing on workflow.</strong>Roll20 is focusing on GM/player visibility friction, while Foundry’s current cycle is about compatibility and technical foundations.</div>
+            <div class="takeaway"><strong>AI remains useful but risky.</strong>AI can help prep and production workflows, but commercial use of AI art or unclear disclosure remains a reputational hazard.</div>
+          </div>
+        </section>
+
+        <section class="section" id="glance">
+          <h2>At a Glance</h2>
+          <p class="dek">The coverage window brought fewer isolated announcements and more evidence of a broader structural shift: tabletop RPGs are becoming more platformed, more subscription-oriented, and more dependent on creator trust.</p>
+          <div class="split">
+            <div class="card">
+              <div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div>
+              <h3>The biggest movement is toward recurring digital utility.</h3>
+              <p>D&amp;D Beyond launched Drops with a subscriber-only library that includes maps, image reveals, player options, stickers, and weekly pre-made encounters for Maps VTT. D&amp;D Beyond describes the goal as making weekly prep and play easier for DMs.</p>
+              <div class="evidence"><strong>Sources:</strong><div class="source-list"><a href="https://www.dndbeyond.com/posts/2156-introducing-d-d-beyond-drops-a-growing-content" target="_blank" rel="noopener">D&amp;D Beyond: Drops announcement</a><a href="https://www.gamesradar.com/tabletop-gaming/d-and-d-launches-game-pass-style-subscription-system-with-free-encounters-maps-and-more/" target="_blank" rel="noopener">GamesRadar: Drops coverage</a><a href="https://www.polygon.com/dnd-dungeons-dragons-beyond-subscription-drops/" target="_blank" rel="noopener">Polygon: weekly content drops</a></div></div>
+            </div>
+            <div class="card">
+              <div class="label-row"><span class="label verified">Verified</span><span class="label community">Community Signal</span></div>
+              <h3>The market is active, but trust is the scarce resource.</h3>
+              <p>Neon Odyssey’s Kickstarter surge, Dungeon Crawler Carl’s BackerKit campaign, Daggerheart’s class packs, and Q1 crowdfunding strength all show continued spending appetite. At the same time, community discussion keeps returning to delivery risk, digital ownership, pricing, subscription value, and AI use.</p>
+              <div class="evidence"><strong>Sources:</strong><div class="source-list"><a href="https://www.gamesradar.com/tabletop-gaming/new-d-and-d-campaign-neon-odyssey-blends-cowboy-bebop-and-snes-games-into-the-perfect-setting/" target="_blank" rel="noopener">GamesRadar: Neon Odyssey</a><a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable" target="_blank" rel="noopener">BackerKit: Dungeon Crawler Carl RPG + Unstoppable</a><a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy" target="_blank" rel="noopener">TTRPG Insider: Q1 crowdfunding</a></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="developments">
+          <h2>Verified Developments</h2>
+          <p class="dek">These are the clearest reportable movements from the window, with interpretation separated from sourced reporting.</p>
+          <div class="cards">
+            <article class="card">
+              <div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div>
+              <h3>D&amp;D Beyond Drops turns subscriber value into recurring game content</h3>
+              <p><strong>Reporting:</strong> On 7 May 2026, D&amp;D Beyond introduced D&amp;D Beyond Drops, a subscriber content library for Hero Tier and Master Tier users. The launch included more than 500 content listings, including 125 maps, 250 reveals, 10 stickers, 11 player options, and more. D&amp;D Beyond says weekly Drops will include pre-made encounters for Maps VTT, while monthly Drops may include player options, maps, monsters, reveals, and other game content.</p>
+              <p><strong>Analysis:</strong> This is the clearest official D&amp;D signal that digital value is moving from static ownership toward a live content cadence. The practical upside is obvious: DMs get ready-to-use prep material. The strategic risk is also obvious: value becomes tied to an active subscription, and DMs may become more dependent on the official platform’s content rhythm.</p>
+              <p><strong>Who it affects:</strong> DMs, D&amp;D Beyond subscribers, VTT users, players in content-sharing groups, and third-party creators competing with official plug-and-play material.</p>
+              <div class="evidence"><strong>Sources:</strong><div class="source-list"><a href="https://www.dndbeyond.com/posts/2156-introducing-d-d-beyond-drops-a-growing-content" target="_blank" rel="noopener">D&amp;D Beyond announcement</a><a href="https://www.gamesradar.com/tabletop-gaming/d-and-d-launches-game-pass-style-subscription-system-with-free-encounters-maps-and-more/" target="_blank" rel="noopener">GamesRadar coverage</a><a href="https://www.rascal.news/first-dungeon-crawler-carl-now-d-d-beyond-the-time-of-the-drop-has-come/" target="_blank" rel="noopener">Rascal analysis</a></div></div>
+            </article>
+            <article class="card">
+              <div class="label-row"><span class="label verified">Verified</span><span class="label community">Community Signal</span></div>
+              <h3>D&amp;D Beyond marketplace refresh adds bundles and starter packs, while à la carte concerns continue</h3>
+              <p><strong>Reporting:</strong> D&amp;D Beyond’s April–May changelog says the refreshed marketplace launched on 30 April 2026. It added physical book purchases, physical/digital bundle pricing, saved payment options, wishlists, filters, and product categories. The changelog also notes that the old Legendary, Player, and Adventure bundles were sunsetted, and that old à la carte purchase options from inside books were removed. D&amp;D Beyond later added Class Starter Packs, positioning them as narrower entry points for character creation.</p>
+              <p><strong>Analysis:</strong> The starter-pack move looks like a partial answer to price sensitivity and the loss of older à la carte buying. It gives new players a lower-cost way to access a class path, but it is not the same as restoring the older granular purchasing model.</p>
+              <div class="evidence"><strong>Sources:</strong><div class="source-list"><a href="https://www.dndbeyond.com/changelog" target="_blank" rel="noopener">D&amp;D Beyond changelog</a><a href="https://dungeonsanddragonsfan.com/dnd-beyond-starter-packs/" target="_blank" rel="noopener">Dungeons &amp; Dragons Fan: Starter Packs coverage</a><a href="https://www.reddit.com/r/onednd/comments/1t017wk/a_la_carte_purchases_are_back_at_dnd_beyond/" target="_blank" rel="noopener">Reddit discussion: à la carte reaction</a></div></div>
+            </article>
+            <article class="card">
+              <div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div>
+              <h3>Roll20 previews “View as Player,” a practical GM workflow feature</h3>
+              <p><strong>Reporting:</strong> Roll20 announced and previewed View as Player, a feature designed to let GMs see what a specific player sees side-by-side with the GM view. Roll20 says the feature aims to reduce reliance on workarounds such as separate test accounts or partial preview modes.</p>
+              <p><strong>Analysis:</strong> This is not a headline-grabbing feature, but it is a highly practical one. Online DMs often lose time checking permissions, lighting, handouts, and player-specific visibility.</p>
+              <div class="evidence"><strong>Sources:</strong><div class="source-list"><a href="https://blog.roll20.net/posts/announcing-view-as-player/" target="_blank" rel="noopener">Roll20: Announcing View as Player</a><a href="https://blog.roll20.net/posts/view-as-player-preview/" target="_blank" rel="noopener">Roll20: View as Player Preview</a><a href="https://www.reddit.com/r/Roll20/comments/1t6if72/roll20_vtt_view_as_player_preview/" target="_blank" rel="noopener">Reddit: Roll20 community discussion</a></div></div>
+            </article>
+            <article class="card">
+              <div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div>
+              <h3>Foundry VTT continues Version 14 stabilization while D&amp;D 5E system work prepares for larger changes</h3>
+              <p><strong>Reporting:</strong> Foundry’s release page lists Version 14.361 as an update-stable release on 5 May 2026, following the full stable 14.359 release on 1 April 2026. The Foundry D&amp;D 5E system’s 5.3 release focuses on Version 14 compatibility, technical debt cleanup, and foundations for the larger planned 6.0 release.</p>
+              <p><strong>Analysis:</strong> Foundry’s signal is infrastructure, not spectacle. For active campaigns, the practical recommendation remains conservative: check system and module compatibility before upgrading.</p>
+              <div class="evidence"><strong>Sources:</strong><div class="source-list"><a href="https://foundryvtt.com/releases/" target="_blank" rel="noopener">Foundry VTT release notes</a><a href="https://github.com/foundryvtt/dnd5e/releases" target="_blank" rel="noopener">Foundry D&amp;D 5E system releases</a><a href="https://blog.forge-vtt.com/april-2026-developer-update/" target="_blank" rel="noopener">The Forge: April developer update</a></div></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="mood">
+          <h2>Market Mood</h2>
+          <p class="dek">The overall mood is active but watchful. Money is still moving, but the audience is increasingly sensitive to how that value is delivered.</p>
+          <div class="mood">
+            <div class="mood-line"><strong>Positive signal: spending appetite remains strong.</strong>Neon Odyssey’s rapid surge past its Kickstarter goal, Dungeon Crawler Carl’s licensed BackerKit campaign, and TTRPG Insider’s Q1 crowdfunding analysis all point to a healthy top end of the market. TTRPG Insider reported that TTRPG projects crossing $100,000 raised about $8.06 million in Q1 2026, roughly 25% above Q1 2025.<div class="source-list"><a href="https://www.gamesradar.com/tabletop-gaming/new-d-and-d-campaign-neon-odyssey-blends-cowboy-bebop-and-snes-games-into-the-perfect-setting/" target="_blank" rel="noopener">GamesRadar: Neon Odyssey</a><a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable" target="_blank" rel="noopener">BackerKit: Dungeon Crawler Carl</a><a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy" target="_blank" rel="noopener">TTRPG Insider: Q1 2026 crowdfunding</a></div></div>
+            <div class="mood-line"><strong>Negative signal: subscription and ownership anxiety is rising.</strong>D&amp;D Beyond Drops adds useful content for subscribers, but GamesRadar and Rascal both highlighted the core tradeoff: access is tied to an active subscription. For DMs, that is the difference between building a prep library and renting a prep stream.<div class="source-list"><a href="https://www.gamesradar.com/tabletop-gaming/d-and-d-launches-game-pass-style-subscription-system-with-free-encounters-maps-and-more/" target="_blank" rel="noopener">GamesRadar: Drops access model</a><a href="https://www.rascal.news/first-dungeon-crawler-carl-now-d-d-beyond-the-time-of-the-drop-has-come/" target="_blank" rel="noopener">Rascal: drop model critique</a></div></div>
+            <div class="mood-line"><strong>Mixed signal: platforms are improving, but trust is not automatic.</strong>Roll20’s View as Player and Foundry’s compatibility work are practical improvements. But platform users judge these updates against long-term expectations: stability, performance, portability, pricing, and whether content remains accessible outside a walled garden.<div class="source-list"><a href="https://blog.roll20.net/posts/view-as-player-preview/" target="_blank" rel="noopener">Roll20: View as Player Preview</a><a href="https://foundryvtt.com/releases/" target="_blank" rel="noopener">Foundry VTT releases</a></div></div>
+          </div>
+        </section>
+
+        <section class="section" id="platform">
+          <h2>Platform Watch</h2>
+          <p class="dek">Platform competition is no longer only about where people play. It is about who controls the prep layer, the asset layer, and the purchasing layer.</p>
+          <div class="cards">
+            <div class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>D&amp;D Beyond is moving deeper into the campaign-prep stack</h3><p>Drops gives D&amp;D Beyond a recurring reason to sit inside a DM’s weekly workflow. If the encounters and maps become consistently useful, the platform becomes more than a rules library: it becomes a prep subscription.</p><div class="source-list"><a href="https://www.dndbeyond.com/posts/2156-introducing-d-d-beyond-drops-a-growing-content" target="_blank" rel="noopener">D&amp;D Beyond: Drops</a><a href="https://www.polygon.com/dnd-dungeons-dragons-beyond-subscription-drops/" target="_blank" rel="noopener">Polygon: subscription content</a></div></div>
+            <div class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>Roll20 is solving small but expensive GM pain</h3><p>View as Player is a reminder that VTT competition is not only about map engines or 3D spectacle. Many DMs want fewer interruptions, fewer surprises, and better confidence that the table sees what it is supposed to see.</p><div class="source-list"><a href="https://blog.roll20.net/posts/announcing-view-as-player/" target="_blank" rel="noopener">Roll20: announcement</a><a href="https://blog.roll20.net/posts/view-as-player-preview/" target="_blank" rel="noopener">Roll20: preview</a></div></div>
+            <div class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>Foundry’s strength remains technical ownership and extensibility</h3><p>Foundry’s current cycle is less about consumer-facing splash and more about platform maturity. For creators, this keeps Foundry attractive as a place to build deeper modules and premium packages.</p><div class="source-list"><a href="https://foundryvtt.com/releases/" target="_blank" rel="noopener">Foundry VTT releases</a><a href="https://github.com/foundryvtt/dnd5e/releases" target="_blank" rel="noopener">D&amp;D 5E system releases</a></div></div>
+            <div class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>Daggerheart’s ecosystem is becoming more visible across retail and digital play</h3><p>Darrington Press promoted Daggerheart Class Packs for the game’s nine classes, while Alchemy RPG is promoting Daggerheart support with a listed 21 May 2026 launch and pre-order bonus content.</p><div class="source-list"><a href="https://www.daggerheart.com/class-packs-coming-april-21st/" target="_blank" rel="noopener">Daggerheart: Class Packs</a><a href="https://darringtonpress.com/class-packs-daggerheart-birthday-week/" target="_blank" rel="noopener">Darrington Press: Class Packs &amp; Birthday Week</a><a href="https://app.alchemyrpg.com/" target="_blank" rel="noopener">Alchemy RPG</a></div></div>
+          </div>
+        </section>
+
+        <section class="section" id="creator">
+          <h2>Creator Economy Signals</h2>
+          <p class="dek">The creator economy is not slowing down, but the bar for attention is rising. Audience, positioning, production value, and trust are doing more work than system compatibility alone.</p>
+          <div class="cards">
+            <article class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>Neon Odyssey shows that “5E, but genre-expanded” still works when the pitch is strong</h3><p><strong>Reporting:</strong> Legends of Avantris’ Neon Odyssey is a space-opera trilogy for D&amp;D that GamesRadar reported had passed 8,500% funding and more than $5 million raised. The project is positioned as a large 5E-compatible expansion with starship combat, vehicle rules, a new class, subclasses, species, monsters, lore, and multiple books.</p><p><strong>Analysis:</strong> The lesson is not “make a bigger book.” The lesson is that a big book can work when the audience trusts the creator, the fantasy is instantly legible, and the product promises play value beyond aesthetic reskinning.</p><div class="source-list"><a href="https://www.kickstarter.com/projects/legendsofavantris/neon-odyssey" target="_blank" rel="noopener">Kickstarter: Neon Odyssey</a><a href="https://www.gamesradar.com/tabletop-gaming/new-d-and-d-campaign-neon-odyssey-blends-cowboy-bebop-and-snes-games-into-the-perfect-setting/" target="_blank" rel="noopener">GamesRadar: Neon Odyssey coverage</a><a href="https://www.polygon.com/neon-odyssey-dnd-sci-fi-kickstarter-launch/" target="_blank" rel="noopener">Polygon: Neon Odyssey launch</a></div></article>
+            <article class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>Dungeon Crawler Carl confirms the crowdfunding power of licensed IP</h3><p><strong>Reporting:</strong> Renegade Game Studios’ Dungeon Crawler Carl RPG + Unstoppable campaign on BackerKit combines a fully licensed TTRPG adaptation and a solo/co-op card-crafting deck-builder based on Matt Dinniman’s series.</p><p><strong>Analysis:</strong> Licensed IP gives a campaign a built-in conversion advantage: the audience already understands the fantasy. The broader signal is that RPG campaigns are borrowing more from entertainment franchising, boxed-product strategy, and post-launch content pipelines.</p><div class="source-list"><a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable" target="_blank" rel="noopener">BackerKit: Dungeon Crawler Carl RPG + Unstoppable</a><a href="https://www.rascal.news/first-dungeon-crawler-carl-now-d-d-beyond-the-time-of-the-drop-has-come/" target="_blank" rel="noopener">Rascal: Digital Drops analysis</a></div></article>
+            <article class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>Gamefound is positioning itself as another RPG crowdfunding pillar</h3><p><strong>Reporting:</strong> Rascal interviewed Gamefound’s RPG Party lead Cam Bradley about the platform’s effort to build stronger tabletop RPG presence. Gamefound has also posted an open call for RPG Party 2026, described as a curated event for indie TTRPG creators.</p><p><strong>Analysis:</strong> Platform competition can benefit creators if it produces better support, discovery, and campaign tooling. But creators should not mistake platform choice for strategy.</p><div class="source-list"><a href="https://www.rascal.news/gamefound-wants-to-throw-another-successful-rpg-party-after-learning-hard-lessons/" target="_blank" rel="noopener">Rascal: Gamefound RPG Party interview</a><a href="https://gamefound.com/en/blog/post/special-rpg-party-2026-open-call" target="_blank" rel="noopener">Gamefound: RPG Party 2026 Open Call</a></div></article>
+          </div>
+        </section>
+
+        <section class="section" id="community">
+          <h2>Community Pulse</h2>
+          <p class="dek">Community sentiment this window is not anti-growth. It is anti-unclear-value. Players and DMs are willing to pay, but they are becoming more precise about what they expect in return.</p>
+          <div class="cards">
+            <div class="card"><div class="label-row"><span class="label community">Community Signal</span><span class="label analysis">Analysis</span></div><h3>Subscription value is being judged through ownership, sharing, and permanence</h3><p>The reaction to D&amp;D Beyond Drops is not simply “subscriptions bad.” The more specific concern is whether useful game content becomes locked behind continued payment, whether it can be shared with groups, and whether it can be exported or preserved.</p><div class="source-list"><a href="https://www.gamesradar.com/tabletop-gaming/d-and-d-launches-game-pass-style-subscription-system-with-free-encounters-maps-and-more/" target="_blank" rel="noopener">GamesRadar: access model</a><a href="https://www.reddit.com/r/onednd/comments/1t6g61m/your_ddb_subscription_just_got_better_introducing/" target="_blank" rel="noopener">Reddit: D&amp;D Beyond Drops discussion</a><a href="https://www.rascal.news/first-dungeon-crawler-carl-now-d-d-beyond-the-time-of-the-drop-has-come/" target="_blank" rel="noopener">Rascal: Drops critique</a></div></div>
+            <div class="card"><div class="label-row"><span class="label community">Community Signal</span><span class="label analysis">Analysis</span></div><h3>Backers remain excited, but delivery risk is part of the conversation</h3><p>Neon Odyssey’s reception shows major excitement around high-production 5E-compatible genre play. But community discussion around large crowdfunding projects often includes a second question: can the team deliver at the scale promised?</p><div class="source-list"><a href="https://www.reddit.com/r/DnD/comments/1t6kfsy/neon_odyssey_is_it_worth_getting_it/" target="_blank" rel="noopener">Reddit: Neon Odyssey discussion</a><a href="https://www.kickstarter.com/projects/legendsofavantris/neon-odyssey" target="_blank" rel="noopener">Kickstarter: Neon Odyssey</a></div></div>
+            <div class="card"><div class="label-row"><span class="label community">Community Signal</span><span class="label analysis">Analysis</span></div><h3>Daggerheart accessories are useful for some tables, but value perception varies</h3><p>Daggerheart Class Packs are positioned as convenient class-specific card sets. Community reaction is mixed: some players see them as a cleaner way to get exactly what they need, while others question whether individual packs are a better value than buying broader sets.</p><div class="source-list"><a href="https://www.daggerheart.com/class-packs-coming-april-21st/" target="_blank" rel="noopener">Daggerheart: Class Packs</a><a href="https://www.reddit.com/r/daggerheart/comments/1sruipz/class_packs_are_here_daggerheart_birthday_week/" target="_blank" rel="noopener">Reddit: Daggerheart community discussion</a></div></div>
+          </div>
+        </section>
+
+        <section class="section" id="ai">
+          <h2>AI &amp; Tooling Watch</h2>
+          <p class="dek">AI is becoming normal as private workflow support, but remains contentious as public-facing creative output.</p>
+          <div class="cards">
+            <article class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span><span class="label community">Community Signal</span></div><h3>AI is a production accelerant, not a trust substitute</h3><p><strong>Reporting:</strong> TTRPG Insider’s Q1 2026 crowdfunding analysis discussed AI imagery in relation to Gates of Krystalia and noted the divide between strong campaign performance and community criticism of AI-generated art. The Gates of Krystalia campaign materials describe use of AI-powered graphic tools as part of the project’s visual process.</p><p><strong>Analysis:</strong> AI can help with notes, outlines, idea generation, automation, summaries, indexing, and private prep. It becomes far riskier when it touches commercial art, final prose, or anything presented as a substitute for human craft.</p><div class="source-list"><a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy" target="_blank" rel="noopener">TTRPG Insider: crowdfunding and AI signal</a><a href="https://gamefound.com/projects/top-notch-international-ltd/gates-of-krystalia--lumina-the-card-based-anime-jrpg-ttrpg" target="_blank" rel="noopener">Gamefound: Gates of Krystalia</a></div></article>
+            <article class="card"><div class="label-row"><span class="label analysis">Analysis</span><span class="label speculation">Speculation</span></div><h3>DM tooling is likely to converge around prep compression</h3><p>The most useful AI tools for DMs are unlikely to be “AI Dungeon Masters” replacing the person at the table. The more durable opportunity is prep compression: encounter variants, session recaps, NPC voice notes, lore indexing, handout drafting, rules lookup support, VTT import preparation, and campaign continuity management.</p><div class="source-list"><a href="https://roleforge.ai/blog/best-ai-game-master-tools-compared/" target="_blank" rel="noopener">RoleForge: AI GM tools comparison</a><a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy" target="_blank" rel="noopener">TTRPG Insider: AI market tension</a></div></article>
+            <article class="card"><div class="label-row"><span class="label verified">Verified</span><span class="label analysis">Analysis</span></div><h3>Labor concerns at Wizards sharpen the AI and platform-quality conversation</h3><p><strong>Reporting:</strong> Workers connected to Magic: The Gathering Arena announced unionization efforts with the Communications Workers of America in late April 2026. Reporting and union materials cited concerns including layoffs, remote work policies, generative AI usage, workload sustainability, and career progression.</p><p><strong>Analysis:</strong> This is not a D&amp;D product update, but it matters to the broader Wizards ecosystem. Digital platforms depend on stable, skilled teams.</p><div class="source-list"><a href="https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization" target="_blank" rel="noopener">The Guardian: WotC unionization</a><a href="https://cwa-union.org/news/releases/wizards-coast-developers-form-union-cwa" target="_blank" rel="noopener">CWA: Wizards workers union release</a><a href="https://www.geekwire.com/2026/game-devs-unionize-to-improve-working-conditions-on-magic-the-gathering-arena-team/" target="_blank" rel="noopener">GeekWire: WotC union coverage</a></div></article>
+          </div>
+        </section>
+
+        <section class="section" id="unknowns">
+          <h2>Critical Unknowns</h2>
+          <p class="dek">These are the questions that matter because the first-order announcements are clear, but the second-order consequences are still unresolved.</p>
+          <div class="cards">
+            <div class="card"><div class="label-row"><span class="label speculation">Speculation</span><span class="label analysis">Analysis</span></div><h3>Will D&amp;D Beyond Drops be treated as added value or a live-service wedge?</h3><p>The difference will come down to usefulness, sharing rules, content quality, and perceived permanence. If Drops makes DM prep meaningfully easier without feeling extractive, it strengthens D&amp;D Beyond. If the content feels like rented table infrastructure, it may deepen skepticism.</p></div>
+            <div class="card"><div class="label-row"><span class="label speculation">Speculation</span><span class="label analysis">Analysis</span></div><h3>Can mega-campaigns keep backer trust after explosive funding?</h3><p>Neon Odyssey’s success is a major market signal, but large-scale fulfillment is its own challenge. The next test is production communication, scope control, preview quality, and delivery discipline.</p></div>
+            <div class="card"><div class="label-row"><span class="label speculation">Speculation</span><span class="label analysis">Analysis</span></div><h3>Will AI disclosure become a baseline expectation?</h3><p>Campaigns that use AI in any visible way may increasingly need clear disclosure. The issue is not only ethics; it is buyer confidence. Ambiguity creates avoidable suspicion.</p></div>
+            <div class="card"><div class="label-row"><span class="label speculation">Speculation</span><span class="label analysis">Analysis</span></div><h3>Will VTTs compete through content libraries or table-control features?</h3><p>D&amp;D Beyond is pushing content flow. Roll20 is improving GM visibility and workflow. Foundry is reinforcing infrastructure and extensibility. The market may split by user type: convenience subscribers, workflow-focused GMs, and control-oriented power users.</p></div>
+          </div>
+        </section>
+
+        <section class="section" id="means">
+          <h2>What This Means For...</h2>
+          <p class="dek">The practical implications differ depending on where you sit in the ecosystem.</p>
+          <div class="cards">
+            <div class="card"><h3>Players</h3><p>Players are getting more lower-friction entry points: starter packs, class packs, digital character tools, and VTT integrations. The downside is fragmentation. A player may need to understand which content is owned, which is subscribed, which is shareable, and which only works well inside a specific platform.</p></div>
+            <div class="card"><h3>DMs</h3><p>DMs are the main target of this shift. Drops, maps, encounters, View as Player, Foundry system updates, and AI prep tools all aim to reduce prep burden. The useful habit is to separate convenience from dependency. Use tools that save time, but keep campaign-critical material portable when possible.</p></div>
+            <div class="card"><h3>Small Creators</h3><p>Small creators should not try to out-volume official platforms. The stronger play is specificity: solve one painful table problem, serve one clear genre fantasy, or provide a tool that saves measurable prep time. Credibility, human taste, and transparent production practices are becoming competitive advantages.</p></div>
+            <div class="card"><h3>Publishers</h3><p>Publishers should watch the “drop” model carefully. Recurring content can deepen customer relationships, but it also creates operational pressure. A monthly or weekly content promise is not just a marketing idea; it is a production pipeline commitment.</p></div>
+            <div class="card"><h3>Platform and Tool Builders</h3><p>The market is rewarding tools that reduce uncertainty at the table. Features like player-view verification, campaign indexing, encounter import, rules-aware prep, and asset organization may matter more than broad claims about being an all-in-one platform.</p></div>
+          </div>
+        </section>
+
+        <section class="section" id="signals">
+          <h2>Signals to Watch Next Month</h2>
+          <p class="dek">These are the developments most likely to shape Issue #4.</p>
+          <div class="watch-list">
+            <div class="watch-item"><div><strong>D&amp;D Beyond Drops retention and reaction</strong><p>Watch whether users treat Drops as useful weekly prep or as another subscription lock-in point. The quality of the first several weeks will matter more than the launch announcement.</p></div></div>
+            <div class="watch-item"><div><strong>Roll20’s View as Player rollout</strong><p>Watch whether the feature ships smoothly and whether GMs report fewer permission, lighting, and display issues in live play.</p></div></div>
+            <div class="watch-item"><div><strong>Foundry V14 ecosystem readiness</strong><p>Watch module compatibility, system stability, and whether more major packages recommend upgrading active campaigns.</p></div></div>
+            <div class="watch-item"><div><strong>Neon Odyssey production communication</strong><p>Watch how the campaign handles stretch goals, previews, timelines, and scope management after its major funding surge.</p></div></div>
+            <div class="watch-item"><div><strong>AI disclosure norms in crowdfunding</strong><p>Watch whether campaigns begin making AI-use statements more visible, especially around art, layout, editing, and concept development.</p></div></div>
+          </div>
+        </section>
+
+        <section class="section" id="outlook">
+          <h2>Final Analysis / Outlook</h2>
+          <p>The tabletop RPG market is not cooling. It is reorganizing.</p>
+          <p>For years, the basic unit of tabletop value was the book: buy the book, read the book, run the book. That model still exists, and it still matters. But this issue shows a different center of gravity forming around ongoing utility. D&amp;D Beyond wants to give subscribers weekly playable content. Roll20 wants to reduce GM uncertainty inside the VTT. Foundry is strengthening the technical base that lets power users and module creators build deeper campaigns. Crowdfunding platforms are competing to host larger and more ambitious RPG launches. Daggerheart is moving from launch product toward ecosystem.</p>
+          <p>This is good news if you are a working DM. Prep is getting more supported. Tools are getting more aware of actual table friction. Digital products are becoming more immediately usable.</p>
+          <p>It is more complicated if you are a creator. The market is crowded, and official platforms are moving directly into the table-ready asset space. A generic encounter pack, a lightly differentiated 5E supplement, or an unclear crowdfunding pitch will have a harder time standing out. But useful, opinionated, well-positioned products can still win.</p>
+          <p>The real dividing line is trust. Trust that the product will ship. Trust that the creator is transparent. Trust that digital purchases will remain accessible. Trust that AI is not replacing the human creative promise. Trust that platforms are solving real table problems rather than simply creating new recurring payments.</p>
+          <p>The market mood, then, is not hype. It is guarded momentum. There is money, energy, and experimentation in the system. The winners over the next few months will be the teams that convert that energy into durable value: clear products, reliable tools, honest workflows, and material that makes actual games easier to run.</p>
+          <div class="evidence"><strong>Primary sources used in this issue:</strong><div class="source-list"><a href="https://www.dndbeyond.com/posts/2156-introducing-d-d-beyond-drops-a-growing-content" target="_blank" rel="noopener">D&amp;D Beyond Drops</a><a href="https://www.dndbeyond.com/changelog" target="_blank" rel="noopener">D&amp;D Beyond Changelog</a><a href="https://blog.roll20.net/posts/announcing-view-as-player/" target="_blank" rel="noopener">Roll20 View as Player</a><a href="https://foundryvtt.com/releases/" target="_blank" rel="noopener">Foundry VTT Releases</a><a href="https://github.com/foundryvtt/dnd5e/releases" target="_blank" rel="noopener">Foundry D&amp;D 5E Releases</a><a href="https://www.kickstarter.com/projects/legendsofavantris/neon-odyssey" target="_blank" rel="noopener">Neon Odyssey Kickstarter</a><a href="https://www.backerkit.com/c/projects/renegade-game-studios/dungeon-crawler-carl-rpg-unstoppable" target="_blank" rel="noopener">Dungeon Crawler Carl BackerKit</a><a href="https://www.ttrpginsider.news/p/ttrpg-crowdfunding-soars-q1-2026-sees-25-more-100k-campaigns-yoy" target="_blank" rel="noopener">TTRPG Insider Crowdfunding Report</a><a href="https://www.rascal.news/first-dungeon-crawler-carl-now-d-d-beyond-the-time-of-the-drop-has-come/" target="_blank" rel="noopener">Rascal: The Time of the Drop</a><a href="https://www.theguardian.com/us-news/2026/apr/27/magic-the-gathering-online-unionization" target="_blank" rel="noopener">The Guardian: WotC Unionization</a></div></div>
+        </section>
+
+        <p class="footer-note">The Dungeon Economy · Issue #3 · 11 May 2026 · Where D&amp;D meets product, platform, and demand.</p>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute("data-theme") || "light";
+      const next = current === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("dungeonEconomyTheme", next); } catch (e) {}
+    }
+    (function initTheme() {
+      try {
+        const saved = localStorage.getItem("dungeonEconomyTheme");
+        if (saved === "light" || saved === "dark") document.documentElement.setAttribute("data-theme", saved);
+      } catch (e) {}
+    })();
+  </script>
+</body>
+</html>
