@@ -1,0 +1,120 @@
+name: Scheduled research draft
+
+on:
+  schedule:
+    # Mondays at 09:00 Singapore time, represented in UTC.
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+    inputs:
+      publication_date:
+        description: 'Publication date in YYYY-MM-DD format. Defaults to today.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-draft:
+    runs-on: ubuntu-latest
+
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5' }}
+      OPENAI_REASONING_EFFORT: ${{ vars.OPENAI_REASONING_EFFORT || 'low' }}
+      EDITOR_EMAIL: ${{ secrets.EDITOR_EMAIL }}
+      EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+      SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Resolve publication date
+        id: date
+        shell: bash
+        run: |
+          if [ -n "${{ inputs.publication_date }}" ]; then
+            publication_date="${{ inputs.publication_date }}"
+          else
+            publication_date="$(date -u +%F)"
+          fi
+          echo "publication_date=${publication_date}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate research draft
+        run: |
+          python scripts/run_research.py \
+            --publication-date "${{ steps.date.outputs.publication_date }}" \
+            --output-dir drafts
+
+      - name: Create draft branch
+        id: branch
+        shell: bash
+        run: |
+          publication_date="${{ steps.date.outputs.publication_date }}"
+          branch="draft/research-${publication_date}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add "drafts/${publication_date}.md" "drafts/${publication_date}.json"
+          git diff --cached --quiet || git commit -m "Draft weekly research for ${publication_date}"
+          git push --force-with-lease origin "$branch"
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update draft PR
+        id: pr
+        shell: bash
+        run: |
+          publication_date="${{ steps.date.outputs.publication_date }}"
+          branch="${{ steps.branch.outputs.branch }}"
+          title="Draft weekly research for ${publication_date}"
+          body_file="$(mktemp)"
+          cat > "$body_file" <<EOF
+          ## Research draft ready
+
+          Publication date: ${publication_date}
+
+          Review the generated draft in \`drafts/${publication_date}.md\`.
+
+          This PR is intentionally draft-only. Publication still requires a human
+          approval step and a later render/publish action.
+          EOF
+
+          if gh pr view "$branch" --json url --jq .url >/tmp/pr_url.txt 2>/dev/null; then
+            gh pr edit "$branch" --title "$title" --body-file "$body_file"
+          else
+            gh pr create --draft --base main --head "$branch" --title "$title" --body-file "$body_file" >/tmp/pr_url.txt
+          fi
+          echo "url=$(cat /tmp/pr_url.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Build notification email
+        shell: bash
+        run: |
+          cat > draft-email.txt <<EOF
+          A new The Dungeon Economy research draft is ready for review.
+
+          Publication date: ${{ steps.date.outputs.publication_date }}
+          Pull request: ${{ steps.pr.outputs.url }}
+          Draft file: drafts/${{ steps.date.outputs.publication_date }}.md
+
+          Review the draft before approving publication.
+          EOF
+
+      - name: Send notification email
+        run: |
+          python scripts/send_email.py \
+            --subject "The Dungeon Economy draft ready: ${{ steps.date.outputs.publication_date }}" \
+            --body-file draft-email.txt
