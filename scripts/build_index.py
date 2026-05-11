@@ -35,6 +35,21 @@ def extract_meta(path):
     preview = headlines[0] if headlines else "Weekly TTRPG intelligence report"
     return issue, preview[:120]
 
+def external_links_new_tab(text):
+    """Keep readers on-site by opening off-site links in a new tab."""
+    def update_anchor(match):
+        tag = match.group(0)
+        tag = re.sub(r'\s+target="[^"]*"', '', tag, flags=re.IGNORECASE)
+        tag = re.sub(r'\s+rel="[^"]*"', '', tag, flags=re.IGNORECASE)
+        return tag[:-1] + ' target="_blank" rel="noopener noreferrer">'
+
+    return re.sub(
+        r'<a\b[^>]*\shref="https?://[^"]*"[^>]*>',
+        update_anchor,
+        text,
+        flags=re.IGNORECASE
+    )
+
 # ── Inject prev/next nav into each report ────────────────────────────────────
 
 def make_nav_btn(slug, label):
@@ -69,6 +84,7 @@ for i, path in enumerate(reports):
         return f'{m.group(1)}{prev_btn}{divider}{next_btn}{m.group(3)}'
 
     new_text, count = nav_pattern.subn(replacer, text, count=1)
+    new_text = external_links_new_tab(new_text)
 
     if count == 0:
         print(f"  WARNING: Could not find nav buttons in {path.name} — skipping nav injection")
