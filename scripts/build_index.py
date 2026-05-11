@@ -37,15 +37,11 @@ def extract_meta(path):
 
 # ── Inject prev/next nav into each report ────────────────────────────────────
 
-def make_nav_btn(slug, label, arrow_left=False):
-    arrow = "&#8592; " if arrow_left else ""
-    arrow_r = " &#8594;" if not arrow_left else ""
-    return f'<a href="../reports/{slug}.html" class="nav-btn">{arrow}{label}{arrow_r}</a>'
+def make_nav_btn(slug, label):
+    return f'<a href="../reports/{slug}.html" class="nav-btn">{label}</a>'
 
-def disabled_btn(label, arrow_left=False):
-    arrow = "&#8592; " if arrow_left else ""
-    arrow_r = " &#8594;" if not arrow_left else ""
-    return f'<a href="#" class="nav-btn disabled">{arrow}{label}{arrow_r}</a>'
+def disabled_btn(label):
+    return f'<a href="#" class="nav-btn disabled" aria-disabled="true">{label}</a>'
 
 for i, path in enumerate(reports):
     text = path.read_text(encoding="utf-8", errors="ignore")
@@ -53,15 +49,15 @@ for i, path in enumerate(reports):
     prev_path = reports[i - 1] if i > 0 else None
     next_path = reports[i + 1] if i < len(reports) - 1 else None
 
-    prev_btn = make_nav_btn(prev_path.stem, "Previous", arrow_left=True) if prev_path else disabled_btn("Previous", arrow_left=True)
-    next_btn = make_nav_btn(next_path.stem, "Next") if next_path else disabled_btn("Next")
+    prev_btn = make_nav_btn(prev_path.stem, "&lt;- Previous") if prev_path else disabled_btn("&lt;- Previous")
+    next_btn = make_nav_btn(next_path.stem, "Next -&gt;") if next_path else disabled_btn("Next -&gt;")
 
     # Replace the two nav-btn anchors in the topbar-right div
     # Matches both enabled and disabled variants
     nav_pattern = re.compile(
         r'(<div class="topbar-right">.*?)'          # open topbar-right
         r'<a[^>]*class="nav-btn[^"]*"[^>]*>.*?</a>' # prev btn
-        r'(\s*<span[^>]*></span>\s*)?'               # optional divider span
+        r'(\s*<(?:span|div)[^>]*class="nav-divider"[^>]*></(?:span|div)>\s*)?' # optional divider
         r'<a[^>]*class="nav-btn[^"]*"[^>]*>.*?</a>' # next btn
         r'(.*?</div>)',                               # rest of topbar-right
         re.DOTALL
