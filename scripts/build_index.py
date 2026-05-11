@@ -49,8 +49,8 @@ for i, path in enumerate(reports):
     prev_path = reports[i - 1] if i > 0 else None
     next_path = reports[i + 1] if i < len(reports) - 1 else None
 
-    prev_btn = make_nav_btn(prev_path.stem, "&lt;- Previous") if prev_path else disabled_btn("&lt;- Previous")
-    next_btn = make_nav_btn(next_path.stem, "Next -&gt;") if next_path else disabled_btn("Next -&gt;")
+    prev_btn = make_nav_btn(prev_path.stem, "&#8592; Previous") if prev_path else disabled_btn("&#8592; Previous")
+    next_btn = make_nav_btn(next_path.stem, "Next &#8594;") if next_path else disabled_btn("Next &#8594;")
 
     # Replace the two nav-btn anchors in the topbar-right div
     # Matches both enabled and disabled variants
