@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>The Dungeon Economy — Issue #6 — July 2, 2026</title>
+<style>
+:root{--bg:#0c0f14;--bg-elev:#121722;--bg-soft:#151b26;--card:rgba(255,255,255,0.04);--line:rgba(255,255,255,0.10);--text:#edf2f8;--muted:#aeb8ca;--soft:#8e98ab;--accent:#8ab4ff;--accent-2:#93f0c8;--warn:#ffcf78;--danger:#f87171;--shadow:0 18px 44px rgba(0,0,0,0.28);--radius:14px;--max:1220px;}
+html[data-theme="light"]{--bg:#f4eee4;--bg-elev:#fbf7ef;--bg-soft:#ede7d8;--card:rgba(74,56,28,0.05);--line:rgba(74,56,28,0.12);--text:#211a14;--muted:#605648;--soft:#7d7163;--accent:#245dc5;--accent-2:#0a8b69;--warn:#9a6700;--danger:#b91c1c;--shadow:0 14px 34px rgba(82,59,28,0.10);}
+*{box-sizing:border-box;margin:0;padding:0;}html{scroll-behavior:smooth;}
+body{color:var(--text);background:radial-gradient(circle at top left,rgba(138,180,255,0.11),transparent 28%),radial-gradient(circle at top right,rgba(147,240,200,0.08),transparent 22%),var(--bg);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased;}
+a{color:var(--accent);text-decoration:none;}a:hover{text-decoration:underline;}
+.wrap{width:min(var(--max),calc(100% - 48px));margin:0 auto;}
+.topbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 85%,transparent);border-bottom:1px solid var(--line);}
+.topbar-inner{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.brand-link{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);transition:color .15s;}
+.brand-link:hover{color:var(--accent);text-decoration:none;}
+.brand-dot{width:11px;height:11px;border-radius:999px;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 0 0 5px rgba(138,180,255,0.10);}
+.brand-link strong{font-size:0.95rem;letter-spacing:0.01em;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.toggle{border:1px solid var(--line);background:var(--bg-elev);color:var(--text);padding:8px 16px;border-radius:999px;cursor:pointer;font:inherit;font-size:0.82rem;font-weight:600;transition:transform .15s,border-color .15s;}
+.toggle:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 40%,var(--line));}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg-elev);color:var(--muted);font-size:0.79rem;font-weight:600;text-decoration:none;transition:border-color .15s,color .15s;white-space:nowrap;}
+.nav-btn:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line));color:var(--accent);text-decoration:none;}
+.nav-btn.disabled{opacity:0.3;pointer-events:none;}
+.nav-divider{width:1px;height:18px;background:var(--line);}
+.section-nav{position:sticky;top:64px;z-index:40;width:100%;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+.section-nav::-webkit-scrollbar{display:none;}
+.nav-inner{display:flex;align-items:center;gap:2px;height:48px;overflow-x:auto;}
+.nav-item{display:flex;align-items:center;padding:5px 14px;border-radius:999px;font-size:0.79rem;font-weight:600;color:var(--soft);text-decoration:none;white-space:nowrap;transition:color .15s,background .15s;border:1px solid transparent;}
+.nav-item:hover{color:var(--text);background:var(--card);text-decoration:none;}
+.nav-item.active{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);border-color:color-mix(in srgb,var(--accent) 28%,transparent);}
+.panel{padding:72px 0;}.panel-soft{background:var(--bg-soft);}
+.card{background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:0.7rem;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--soft);margin-bottom:8px;}
+.eyebrow::before{content:'';width:16px;height:1px;background:var(--accent);}
+.section-title{font-size:clamp(1.3rem,2.5vw,1.9rem);font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:24px;}
+.pill{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:0.66rem;font-weight:800;letter-spacing:0.04em;white-space:nowrap;}
+.pill-confirmed{background:rgba(147,240,200,0.15);color:#93f0c8;border:1px solid rgba(147,240,200,0.3);}
+.pill-reported{background:rgba(255,255,255,0.06);color:var(--muted);border:1px solid var(--line);}
+.pill-community{background:rgba(138,180,255,0.15);color:#8ab4ff;border:1px solid rgba(138,180,255,0.3);}
+.pill-medium{background:rgba(255,207,120,0.15);color:#ffcf78;border:1px solid rgba(255,207,120,0.3);}
+.pill-high{background:rgba(147,240,200,0.15);color:#93f0c8;border:1px solid rgba(147,240,200,0.3);}
+.pill-risk{background:rgba(248,113,113,0.14);color:#fca5a5;border:1px solid rgba(248,113,113,0.3);}
+.cover-panel{padding:80px 0 64px;}
+.cover-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.16em;color:var(--soft);}
+.cover-kicker::before{content:'';width:18px;height:1px;background:var(--accent);}
+.cover-question{font-size:clamp(1.7rem,4.2vw,3rem);font-weight:800;letter-spacing:-0.04em;line-height:1.12;max-width:900px;margin-bottom:24px;}
+.cover-tagline{font-size:1rem;color:var(--muted);margin-bottom:32px;max-width:680px;}
+.cover-date{font-size:0.82rem;color:var(--soft);}
+.article-item{background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin-bottom:24px;}
+.article-item h3{font-size:1.2rem;font-weight:700;margin-bottom:12px;margin-top:0;}
+.article-item p,.card p{margin-bottom:16px;line-height:1.7;}
+.article-item p:last-child,.card p:last-child{margin-bottom:0;}
+.label-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.source{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-size:0.82rem;color:var(--soft);}
+.source a{color:var(--soft);word-break:break-all;}
+.source a:hover{color:var(--accent);}
+.brief-list{display:flex;flex-direction:column;gap:16px;}
+.brief-list .row{background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+.brief-list .row b{display:block;font-weight:700;margin-bottom:6px;color:var(--text);}
+.brief-list .row span{color:var(--muted);line-height:1.6;}
+.lead{font-size:1.05rem;line-height:1.7;color:var(--muted);margin-bottom:24px;}
+ul.clean{list-style:none;padding:0;}ul.clean li{background:linear-gradient(180deg,color-mix(in srgb,var(--bg-elev) 94%,transparent),var(--bg-elev));border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px;line-height:1.7;}
+footer{border-top:1px solid var(--line);padding:48px 0;margin-top:72px;text-align:center;color:var(--soft);font-size:0.88rem;}
+.footer-inner{display:flex;flex-direction:column;gap:8px;align-items:center;}.footer-inner strong{color:var(--text);}
+@media(max-width:768px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}.topbar-inner{flex-direction:column;align-items:flex-start;}.nav-inner{overflow-x:auto;}.topbar-right{flex-wrap:wrap;}}
+@media print{.topbar,.section-nav{display:none!important;}body{background:#fff!important;color:#111!important;}.panel,.panel-soft{padding:36px 0;background:#fff!important;}.card,.article-item,.brief-list .row,ul.clean li{box-shadow:none!important;break-inside:avoid;background:#fff!important;border:1px solid #ddd!important;}a{color:#111!important;text-decoration:underline!important;}.source a::after{content:" (" attr(href) ")";font-size:.75rem;color:#555;}footer{margin-top:36px;}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <a href="../index.html" class="brand-link" aria-label="Back to issue archive">
+      <div class="brand-dot"></div>
+      <strong>The Dungeon Economy</strong>
+    </a>
+    <div class="topbar-right">
+      <a href="../reports/2026-05-30.html" class="nav-btn">&#8592; Previous</a>
+      <span class="nav-divider"></span>
+      <a href="#" class="nav-btn disabled" aria-disabled="true">Next &#8594;</a>
+      <button id="themeToggle" class="toggle">Light mode</button>
+    </div>
+  </div>
+</div>
+
+<nav class="section-nav">
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="#overview" class="nav-item active">Overview</a>
+      <a href="#glance" class="nav-item">Executive</a>
+      <a href="#developments" class="nav-item">Verified</a>
+      <a href="#market" class="nav-item">Market</a>
+      <a href="#platform" class="nav-item">Platform</a>
+      <a href="#community" class="nav-item">Community</a>
+      <a href="#analysis" class="nav-item">Analysis</a>
+      <a href="#means" class="nav-item">Implications</a>
+      <a href="#watchlist" class="nav-item">Watchlist</a>
+      <a href="#sources" class="nav-item">Sources</a>
+    </div>
+  </div>
+</nav>
+
+<section id="overview" class="cover-panel">
+  <div class="wrap">
+    <div class="cover-kicker">Issue #6 — July 2, 2026</div>
+    <h1 class="cover-question">Distribution stress, VTT workflow, and licensed-IP expansion are defining the tabletop week.</h1>
+    <p class="cover-tagline">Where D&amp;D meets product, platform, and demand. This issue tracks Paizo’s Diamond-related shock, Roll20 and Foundry workflow signals, Free RPG Day logistics, ENNIE timing, and D&amp;D’s continued push beyond rulebooks.</p>
+    <div class="cover-date">Coverage window: June 18 – July 2, 2026</div>
+  </div>
+</section>
+
+<section id="glance" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Executive Read</div>
+    <h2 class="section-title">This week’s signal is infrastructure risk meeting platform competition</h2>
+    <p class="lead">This issue is not defined by one blockbuster release. It is defined by a convergence of distribution stress, VTT feature competition, convention-season positioning, and licensed-IP expansion. The tabletop market is active, but the weak points are increasingly operational: stock, logistics, platform dependency, compatibility, and discovery.</p>
+    <div class="grid-4">
+      <div class="card"><div class="eyebrow">Distribution</div><h3 style="margin-top:8px;">Physical risk is real</h3><p style="font-size:0.88rem;color:var(--muted);margin:0;">Paizo’s Diamond-related losses show how exposed publishers can be to distributor failure and inventory control issues.</p></div>
+      <div class="card"><div class="eyebrow">VTTs</div><h3 style="margin-top:8px;">Workflow is the fight</h3><p style="font-size:0.88rem;color:var(--muted);margin:0;">Roll20 and Foundry are competing through table-confidence features, onboarding, compatibility, and prep reduction.</p></div>
+      <div class="card"><div class="eyebrow">Brand</div><h3 style="margin-top:8px;">D&amp;D keeps expanding</h3><p style="font-size:0.88rem;color:var(--muted);margin:0;">Novels, comics, and digital board-game products keep the brand active outside rulebook releases.</p></div>
+      <div class="card"><div class="eyebrow">Events</div><h3 style="margin-top:8px;">Convention season tightens</h3><p style="font-size:0.88rem;color:var(--muted);margin:0;">Free RPG Day, ENNIE announcements, voting, and Gen Con attention are now clustering.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="developments" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">This Week’s Verified Developments</div>
+    <h2 class="section-title">The major confirmed moves this window</h2>
+
+    <div class="article-item">
+      <h3>Paizo’s Diamond-related shock turns distribution risk into a board-level issue</h3>
+      <div class="label-row"><span class="pill pill-high">Confidence: High</span><span class="pill pill-confirmed">Reported</span><span class="pill pill-risk">Risk Signal</span></div>
+      <p><strong>Reporting:</strong> ICv2 reported that Paizo claimed almost $2 million in losses in 2025 and laid off 12 employees in connection with the Diamond Comics bankruptcy fallout. GamesRadar also summarized the situation as involving roughly $10 million in Paizo stock being held up through the Diamond situation.</p>
+      <p><strong>Analysis:</strong> This is not only a Paizo story. It is a warning to tabletop publishers that physical distribution exposure is operational risk, not just a sales-channel choice. Inventory location, receivables, distributor health, title control, and legal access to stock can become existential when a distributor fails.</p>
+      <p><strong>Who it affects:</strong> Mid-sized publishers, print-heavy indie publishers, retailers, warehouse partners, distributors, and any studio depending on physical book cashflow.</p>
+      <div class="source"><b>Sources:</b> ICv2 — <a href="https://icv2.com/articles/news/view/62571/paizo-claims-almost-2-million-loss-2025" target="_blank" rel="noopener noreferrer">https://icv2.com/articles/news/view/62571/paizo-claims-almost-2-million-loss-2025</a><br>GamesRadar — <a href="https://www.gamesradar.com/tabletop-gaming/d-and-d-rival-paizo-forced-to-make-layoffs-after-devastating-loss-stemming-from-usd10m-in-stock-being-held-hostage/" target="_blank" rel="noopener noreferrer">https://www.gamesradar.com/tabletop-gaming/d-and-d-rival-paizo-forced-to-make-layoffs-after-devastating-loss-stemming-from-usd10m-in-stock-being-held-hostage/</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3>Roll20 adds Secret Rolls and Super-Secret Rolls</h3>
+      <div class="label-row"><span class="pill pill-high">Confidence: High</span><span class="pill pill-confirmed">Verified</span><span class="pill pill-reported">Workflow Signal</span></div>
+      <p><strong>Reporting:</strong> Roll20 announced Secret Rolls and Super-Secret Rolls on June 22, describing the feature as one of the most-requested items on its Suggestions &amp; Ideas forum. The feature lets GMs receive hidden dice results while preserving uncertainty for players.</p>
+      <p><strong>Analysis:</strong> This is a small feature with high table impact. Hidden GM-facing rolls support mystery, perception checks, stealth, traps, social reads, horror pacing, and information-control play without forcing awkward manual workarounds.</p>
+      <p><strong>Who it affects:</strong> Roll20 GMs, paid online DMs, mystery and horror tables, and players in games where hidden information is part of the experience.</p>
+      <div class="source"><b>Source:</b> Roll20 — <a href="https://blog.roll20.net/posts/secret-rolls/" target="_blank" rel="noopener noreferrer">https://blog.roll20.net/posts/secret-rolls/</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3>Free RPG Day lands globally, but UK kits are delayed</h3>
+      <div class="label-row"><span class="pill pill-high">Confidence: High</span><span class="pill pill-confirmed">Verified</span><span class="pill pill-medium">Logistics Signal</span></div>
+      <p><strong>Reporting:</strong> The official Free RPG Day site lists June 27, 2026 as the event date. The same page notes that UK kits were delayed due to a U.S. Customs issue and that the region’s event would be rescheduled.</p>
+      <p><strong>Analysis:</strong> Free RPG Day remains valuable because it gives retailers and publishers a focused discovery event. The UK delay is the useful lesson: community activation still depends on fulfillment, freight, customs, and clear retailer communication.</p>
+      <p><strong>Who it affects:</strong> Retailers, publishers, demo teams, local communities, and players relying on store events for discovery.</p>
+      <div class="source"><b>Source:</b> Free RPG Day — <a href="https://freerpgday.com/" target="_blank" rel="noopener noreferrer">https://freerpgday.com/</a></div>
+    </div>
+
+    <div class="article-item">
+      <h3>D&amp;D continues its non-rulebook publishing push</h3>
+      <div class="label-row"><span class="pill pill-high">Confidence: High</span><span class="pill pill-confirmed">Verified</span><span class="pill pill-reported">Brand Signal</span></div>
+      <p><strong>Reporting:</strong> Wizards posted a June 30 interview around <em>The Feywild Job</em>, a D&amp;D novel by C. L. Polk described as available now. Wizards also previewed <em>Dungeons &amp; Dragons: Total Party Killers #1</em>, a Dark Horse Comics series focused on D&amp;D monsters with a local comic shop release date of July 22.</p>
+      <p><strong>Analysis:</strong> The D&amp;D brand is still pushing beyond rulebooks into fiction, comics, digital board games, VTT modules, and event products. That broadens entry points for the brand, but it also raises the bar for third-party creators to explain exactly what niche they serve.</p>
+      <div class="source"><b>Sources:</b> Dungeons &amp; Dragons — <a href="https://www.dungeonsanddragons.com/news/feywild-job-interview" target="_blank" rel="noopener noreferrer">https://www.dungeonsanddragons.com/news/feywild-job-interview</a><br>Dungeons &amp; Dragons — <a href="https://www.dungeonsanddragons.com/news/total-party-killers-1" target="_blank" rel="noopener noreferrer">https://www.dungeonsanddragons.com/news/total-party-killers-1</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="market" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Market and Commercial Movement</div>
+    <h2 class="section-title">The market is creatively healthy but structurally brittle</h2>
+
+    <div class="article-item">
+      <h3>Physical distribution risk is now visible at publisher scale</h3>
+      <p>The Paizo/Diamond situation is the clearest current case study for print-market fragility. The takeaway is not “print is bad.” The takeaway is that a publisher’s operational model must account for where stock sits, who controls it, how invoices flow, and what happens when a distributor or warehouse partner becomes unstable.</p>
+      <div class="source"><b>Sources:</b> ICv2 — <a href="https://icv2.com/articles/news/view/62571/paizo-claims-almost-2-million-loss-2025" target="_blank" rel="noopener noreferrer">Paizo loss report</a> · GamesRadar — <a href="https://www.gamesradar.com/tabletop-gaming/d-and-d-rival-paizo-forced-to-make-layoffs-after-devastating-loss-stemming-from-usd10m-in-stock-being-held-hostage/" target="_blank" rel="noopener noreferrer">Paizo layoffs coverage</a></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>Licensed IP remains a strong crowdfunding lane</h3>
+        <p>Recent crowdfunding activity continues to show demand for recognizable IP adaptations. <em>Heroes of Might and Magic TTRPG</em> is listed on Kickstarter as an officially licensed roleplaying game with late pledges open after a June 17 campaign listing.</p>
+        <div class="source"><b>Source:</b> Kickstarter — <a href="https://www.kickstarter.com/projects/lmpublishing/heroes-of-might-and-magic-ttrpg" target="_blank" rel="noopener noreferrer">Heroes of Might and Magic TTRPG</a></div>
+      </div>
+      <div class="card">
+        <h3>Free RPG Day remains useful but logistics-sensitive</h3>
+        <p>The event is still a strong retailer and publisher discovery beat. The UK delay shows that event marketing still has a physical supply-chain backend, and that delays can change local community sentiment quickly.</p>
+        <div class="source"><b>Source:</b> Free RPG Day — <a href="https://freerpgday.com/" target="_blank" rel="noopener noreferrer">Official event page</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="platform" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">Platform and Tooling Signals</div>
+    <h2 class="section-title">Table-confidence features are becoming competitive product strategy</h2>
+
+    <div class="brief-list">
+      <div class="row"><b>Roll20 is competing on table feel, not just content access</b><span>Secret Rolls and Super-Secret Rolls are simple features that solve real table problems around hidden information, mystery, and GM control.</span></div>
+      <div class="row"><b>Roll20 continues onboarding and Launchpad work</b><span>The June 12 change log lists VTT Launchpad upgrades for new D&amp;D users, including light/dark visibility, clearer summary text for the <em>Frozen Sick</em> free adventure option, and API sandbox startup changes for larger games.</span></div>
+      <div class="row"><b>Foundry VTT Version 14 remains active on the stable line</b><span>Foundry’s release page lists Version 14 Release 14.364 as an update-stable release dated June 10, following a series of Version 14 stable updates across May and June.</span></div>
+      <div class="row"><b>Foundry’s premium content showcase emphasizes system readiness</b><span>Foundry’s 2026 showcase highlights D&amp;D 5e, Pathfinder Second Edition, Ember, and Crucible, reinforcing a strategy built around depth, compatibility, and system-specific premium content.</span></div>
+      <div class="row"><b>Demeo x D&amp;D expands to Nintendo Switch 2</b><span>Wizards says <em>Demeo x Dungeons &amp; Dragons: Battlemarked</em> is available on Nintendo Switch 2 and supports cross-platform play across Steam, Meta Horizon, and PlayStation.</span></div>
+    </div>
+    <div class="source"><b>Sources:</b> Roll20 — <a href="https://blog.roll20.net/posts/secret-rolls/" target="_blank" rel="noopener noreferrer">Secret Rolls</a> · Roll20 Help — <a href="https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log" target="_blank" rel="noopener noreferrer">Change Log</a> · Foundry — <a href="https://foundryvtt.com/releases/" target="_blank" rel="noopener noreferrer">Releases</a> · Foundry — <a href="https://foundryvtt.com/article/content-showcase-2026/" target="_blank" rel="noopener noreferrer">Premium Content Showcase 2026</a> · D&amp;D — <a href="https://www.dungeonsanddragons.com/news/battlemarked" target="_blank" rel="noopener noreferrer">Battlemarked</a></div>
+  </div>
+</section>
+
+<section id="community" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Community Sentiment</div>
+    <h2 class="section-title">Verified sentiment is thin, but the operational signals are useful</h2>
+    <p class="lead">This issue treats broad community mood conservatively. The strongest available sentiment signals are platform-stated demand, official event disruption, and business reporting around a beloved publisher rather than unsampled social chatter.</p>
+    <div class="grid-3">
+      <div class="card"><h3>Roll20 feature demand</h3><p>Roll20’s own announcement frames Secret Rolls as a highly requested feature. That is a stronger signal than scattered comments because it connects shipped work to a known user request channel.</p></div>
+      <div class="card"><h3>Paizo sympathy and concern</h3><p>The Paizo story is likely emotionally charged because public reporting frames the layoffs as tied to external distribution failure rather than weak product demand. Track reaction carefully before claiming broad consensus.</p></div>
+      <div class="card"><h3>Free RPG Day regional split</h3><p>Where kits arrived, sentiment likely centers on discovery and store activity. In the UK, the official delay means sentiment may center on communication, rescheduling, and missed launch timing.</p></div>
+    </div>
+    <div class="source"><b>Sources:</b> Roll20 — <a href="https://blog.roll20.net/posts/secret-rolls/" target="_blank" rel="noopener noreferrer">Secret Rolls</a> · ICv2 — <a href="https://icv2.com/articles/news/view/62571/paizo-claims-almost-2-million-loss-2025" target="_blank" rel="noopener noreferrer">Paizo report</a> · Free RPG Day — <a href="https://freerpgday.com/" target="_blank" rel="noopener noreferrer">Official page</a></div>
+  </div>
+</section>
+
+<section id="analysis" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">Observations and Interpretation</div>
+    <h2 class="section-title">Four strategic reads from the week</h2>
+
+    <div class="article-item"><h3>1. The market is active, but infrastructure is the weak point</h3><p>There are products, events, platforms, comics, novels, and licensed games moving. The weak point is not imagination. The weak point is infrastructure: distribution, fulfillment, platform lock-in, compatibility, discoverability, and retailer communication.</p></div>
+    <div class="article-item"><h3>2. VTT features are becoming table-trust features</h3><p>Secret rolls, onboarding clarity, PDF export, visibility tools, performance, and compatibility are not just technical backlog items. They directly affect whether a GM trusts a platform during paid, public, or high-prep play.</p></div>
+    <div class="article-item"><h3>3. D&amp;D’s brand strategy is increasingly media-networked</h3><p>The same D&amp;D consumer can encounter the brand through fiction, comics, video games, VTT modules, actual play, event products, and physical books. That creates more entry points, but it also crowds attention.</p></div>
+    <div class="article-item"><h3>4. Convention season is now a launch-calendar pressure point</h3><p>Free RPG Day, ENNIE announcements, voting, Gen Con, and summer crowdfunding windows are clustering. Publishers need concise positioning, clear product pages, and disciplined communication to avoid being drowned out.</p></div>
+  </div>
+</section>
+
+<section id="means" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Implications by Audience</div>
+    <h2 class="section-title">What this means for the tabletop ecosystem</h2>
+    <div class="grid-2">
+      <div class="card"><h3>Publishers</h3><p>Audit distribution exposure. Know where stock sits, who controls it, what happens during distributor insolvency, and how quickly direct-to-consumer or alternate distribution can activate. Convention-season messaging should also be ready now: ENNIE announcements, voting, and Gen Con will compress attention.</p></div>
+      <div class="card"><h3>Creators</h3><p>Do not try to out-volume official platforms or licensed IP. Design for discoverability: clear one-page explainers, actual-play-ready quickstarts, “who this is for” copy, and digital table support. If your product is meant for online play, VTT usability is part of the product experience.</p></div>
+      <div class="card"><h3>Platforms</h3><p>The feature race is moving toward prep reduction and session confidence. Roll20’s Secret Rolls and Launchpad work show a practical direction: remove awkwardness before it reaches the table. Foundry’s Version 14 readiness signals the same priority from a compatibility and depth angle.</p></div>
+      <div class="card"><h3>DMs and Players</h3><p>Choose tools based on the session you actually run. Mystery-heavy games benefit from hidden-roll workflows. Tactical, automation-heavy games may benefit from deeper system integration. Casual onboarding-heavy games need lower setup friction more than feature volume.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="watchlist" class="panel panel-soft">
+  <div class="wrap">
+    <div class="eyebrow">What to Watch Next</div>
+    <h2 class="section-title">Signals for Issue #7</h2>
+    <div class="brief-list">
+      <div class="row"><b>ENNIE nominee and Judge’s Spotlight announcements</b><span>The ENNIE Awards site lists July 3, 2026 for nominee and Judge’s Spotlight announcements, July 10–19 for voting, and July 31 for the ceremony.</span></div>
+      <div class="row"><b>Paizo follow-up</b><span>Watch for updates on restructuring, organized play, release cadence, distribution recovery, and community support after the Diamond fallout.</span></div>
+      <div class="row"><b>UK Free RPG Day rescheduling</b><span>Watch how the delayed UK event is communicated and whether retailers receive enough lead time to reactivate local demand.</span></div>
+      <div class="row"><b>Roll20’s next workflow improvements</b><span>Watch whether Roll20 continues prioritizing table-confidence features after Secret Rolls and Launchpad improvements.</span></div>
+      <div class="row"><b>Foundry V14 adoption friction</b><span>Watch module-heavy tables, system compatibility, hosting guidance, and the pace of premium content updates.</span></div>
+      <div class="row"><b>July crowdfunding and Gen Con visibility</b><span>Watch whether licensed-IP projects continue to dominate attention as convention-season announcements accelerate.</span></div>
+    </div>
+    <div class="source"><b>Source:</b> ENNIE Awards — <a href="https://ennie-awards.com/" target="_blank" rel="noopener noreferrer">https://ennie-awards.com/</a></div>
+  </div>
+</section>
+
+<section id="sources" class="panel">
+  <div class="wrap">
+    <div class="eyebrow">Source Ledger and Method</div>
+    <h2 class="section-title">Source Ledger</h2>
+    <p class="lead">Source links are preserved below for auditability and for the publishing archive.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>D&amp;D / Wizards / Licensed Brand Activity</h3>
+        <ul style="font-size:0.88rem;line-height:1.8;">
+          <li><a href="https://www.dungeonsanddragons.com/news/feywild-job-interview" target="_blank" rel="noopener noreferrer">Dungeons &amp; Dragons — The Feywild Job interview</a></li>
+          <li><a href="https://www.dungeonsanddragons.com/news/total-party-killers-1" target="_blank" rel="noopener noreferrer">Dungeons &amp; Dragons — Total Party Killers #1 preview</a></li>
+          <li><a href="https://www.dungeonsanddragons.com/news/battlemarked" target="_blank" rel="noopener noreferrer">Dungeons &amp; Dragons — Battlemarked on Nintendo Switch 2</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Platform and VTT Sources</h3>
+        <ul style="font-size:0.88rem;line-height:1.8;">
+          <li><a href="https://blog.roll20.net/posts/secret-rolls/" target="_blank" rel="noopener noreferrer">Roll20 — Maintain Mystery with Secret Rolls</a></li>
+          <li><a href="https://help.roll20.net/hc/en-us/articles/360037772613-Change-Log" target="_blank" rel="noopener noreferrer">Roll20 — Change Log</a></li>
+          <li><a href="https://foundryvtt.com/releases/" target="_blank" rel="noopener noreferrer">Foundry VTT — Releases</a></li>
+          <li><a href="https://foundryvtt.com/article/content-showcase-2026/" target="_blank" rel="noopener noreferrer">Foundry VTT — Premium Content Showcase 2026</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Publishing / Distribution / Business Reporting</h3>
+        <ul style="font-size:0.88rem;line-height:1.8;">
+          <li><a href="https://icv2.com/articles/news/view/62571/paizo-claims-almost-2-million-loss-2025" target="_blank" rel="noopener noreferrer">ICv2 — Paizo Claims Almost $2 Million Loss in 2025</a></li>
+          <li><a href="https://www.gamesradar.com/tabletop-gaming/d-and-d-rival-paizo-forced-to-make-layoffs-after-devastating-loss-stemming-from-usd10m-in-stock-being-held-hostage/" target="_blank" rel="noopener noreferrer">GamesRadar — Paizo layoffs and stock coverage</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Events / Awards / Community Calendar</h3>
+        <ul style="font-size:0.88rem;line-height:1.8;">
+          <li><a href="https://freerpgday.com/" target="_blank" rel="noopener noreferrer">Free RPG Day — Official site</a></li>
+          <li><a href="https://ennie-awards.com/" target="_blank" rel="noopener noreferrer">ENNIE Awards — Important dates</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Crowdfunding / Product Discovery</h3>
+        <ul style="font-size:0.88rem;line-height:1.8;">
+          <li><a href="https://www.kickstarter.com/projects/lmpublishing/heroes-of-might-and-magic-ttrpg" target="_blank" rel="noopener noreferrer">Kickstarter — Heroes of Might and Magic TTRPG</a></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Method Note</h3>
+        <p style="font-size:0.88rem;color:var(--muted);line-height:1.8;margin:0;">This report prioritizes primary sources where available: official D&amp;D pages, Roll20 posts and change logs, Foundry VTT release/showcase pages, Free RPG Day, and ENNIE Awards. Paizo’s official blog pages were visible in search results but blocked direct fetching during research, so business-impact details are attributed to ICv2 and GamesRadar reporting rather than restated as directly verified from Paizo’s own page. Community sentiment is intentionally conservative and should be expanded with additional Reddit, Discord, YouTube, publisher-comment, and retailer-post sampling before publication claims are strengthened.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div><strong>The Dungeon Economy</strong><span> Issue #6 &nbsp;·&nbsp; July 2, 2026</span></div>
+    <div style="color:var(--muted);font-size:0.88rem;">Where D&amp;D meets product, platform, and demand.</div>
+  </div>
+</footer>
+
+<script>
+(function(){const key='dungeon-economy-theme',root=document.documentElement,btn=document.getElementById('themeToggle');function apply(t){root.setAttribute('data-theme',t);btn.textContent=t==='dark'?'Light mode':'Dark mode';}const saved=localStorage.getItem(key);apply(saved==='light'||saved==='dark'?saved:'dark');btn.addEventListener('click',function(){const next=root.getAttribute('data-theme')==='dark'?'light':'dark';localStorage.setItem(key,next);apply(next);});})();
+(function(){const items=document.querySelectorAll('.nav-item');const panels=document.querySelectorAll('section[id]');const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){items.forEach(i=>i.classList.remove('active'));const active=document.querySelector('.nav-item[href="#'+e.target.id+'"]');if(active){active.classList.add('active');active.scrollIntoView({block:'nearest',inline:'center'});}}});},{threshold:0.25});panels.forEach(p=>obs.observe(p));})();
+</script>
+</body>
+</html>
